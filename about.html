@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why OneSip — Where Health Meets Hydration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════
+           DARK THEME (default)
+        ═══════════════════════════════════ */
+        :root {
+            --ink:             #0d0d0a;
+            --ink-nav:         rgba(13,13,10,0.82);
+            --cream:           #f5f0e8;
+            --sage:            #7a8c6e;
+            --gold:            #c9a96e;
+            --gold-hover:      #d4b07e;
+            --border:          rgba(201,169,110,0.18);
+            --glass:           rgba(245,240,232,0.04);
+            --card-bg:         #0d0d0a;
+            --card-hover:      rgba(201,169,110,0.04);
+            --text-dim:        rgba(245,240,232,0.55);
+            --text-dimmer:     rgba(245,240,232,0.35);
+            --survey-bg:       rgba(122,140,110,0.04);
+            --nav-link:        rgba(245,240,232,0.6);
+            --toggle-track:    rgba(201,169,110,0.15);
+            --deco-letter:     rgba(201,169,110,0.03);
+            --conclusion-col:  rgba(245,240,232,0.7);
+            --orb-col:         rgba(122,140,110,0.15);
+        }
+
+        /* ═══════════════════════════════════
+           LIGHT THEME
+        ═══════════════════════════════════ */
+        [data-theme="light"] {
+            --ink:             #f7f3ec;
+            --ink-nav:         rgba(247,243,236,0.92);
+            --cream:           #1c1a14;
+            --sage:            #5a7050;
+            --gold:            #9a7038;
+            --gold-hover:      #b08040;
+            --border:          rgba(100,80,40,0.18);
+            --glass:           rgba(20,18,10,0.05);
+            --card-bg:         #f7f3ec;
+            --card-hover:      rgba(154,112,56,0.06);
+            --text-dim:        rgba(28,26,20,0.6);
+            --text-dimmer:     rgba(28,26,20,0.4);
+            --survey-bg:       rgba(80,110,70,0.04);
+            --nav-link:        rgba(28,26,20,0.6);
+            --toggle-track:    rgba(154,112,56,0.15);
+            --deco-letter:     rgba(154,112,56,0.04);
+            --conclusion-col:  rgba(28,26,20,0.65);
+            --orb-col:         rgba(80,110,70,0.1);
+        }
+
+        /* ═══════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════ */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+
+        body {
+            background: var(--ink);
+            color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 17px;
+            line-height: 1.65;
+            overflow-x: hidden;
+            cursor: none;
+            transition: background 0.4s, color 0.4s;
+        }
+
+        body::before {
+            content:'';
+            position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:9997; opacity:0.35;
+        }
+
+        /* ── Cursor ── */
+        .cursor { width:8px; height:8px; background:var(--gold); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; mix-blend-mode:difference; }
+        .cursor-ring { width:36px; height:36px; border:1px solid rgba(201,169,110,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:width 0.3s, height 0.3s, border-color 0.3s; }
+
+        /* ═══════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════ */
+        .navbar {
+            position:fixed; top:0; left:0; right:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:1.5rem 4rem;
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(20px);
+            background:var(--ink-nav);
+            transition: background 0.4s, border-color 0.4s;
+        }
+        .logo { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; }
+        nav { display:flex; align-items:center; gap:2.5rem; }
+        nav a { color:var(--nav-link); text-decoration:none; font-size:0.82rem; letter-spacing:0.12em; text-transform:uppercase; transition:color 0.3s; position:relative; cursor:none; }
+        nav a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 0.3s; }
+        nav a:hover { color:var(--cream); }
+        nav a:hover::after, nav a.active::after { transform:scaleX(1); }
+        nav a.active { color:var(--gold); }
+        .btn-nav { border:1px solid var(--border) !important; padding:0.5rem 1.4rem; border-radius:100px; color:var(--cream) !important; background:var(--glass); }
+        .btn-nav::after { display:none !important; }
+        .btn-nav:hover { background:var(--gold) !important; color:var(--ink) !important; border-color:var(--gold) !important; }
+
+        /* ── Theme Toggle ── */
+        .theme-toggle {
+            display:flex; align-items:center;
+            width:52px; height:28px;
+            background:var(--toggle-track);
+            border:1px solid var(--border);
+            border-radius:100px;
+            cursor:none; position:relative;
+            transition:background 0.35s, border-color 0.35s;
+            flex-shrink:0;
+        }
+        .theme-toggle-thumb {
+            position:absolute; left:4px;
+            width:18px; height:18px; border-radius:50%;
+            background:var(--gold);
+            display:flex; align-items:center; justify-content:center;
+            font-size:0.6rem;
+            transition:transform 0.4s cubic-bezier(0.23,1,0.32,1);
+            pointer-events:none;
+        }
+        [data-theme="light"] .theme-toggle-thumb { transform:translateX(24px); }
+
+        /* ═══════════════════════════════════
+           HERO
+        ═══════════════════════════════════ */
+        .about-hero {
+            min-height:100vh;
+            display:flex; align-items:center;
+            position:relative; overflow:hidden;
+            padding:10rem 4rem 6rem;
+        }
+        .about-hero::before {
+            content:'W';
+            position:absolute;
+            font-family:'Cormorant Garamond',serif;
+            font-size:55vw; font-weight:300;
+            color:var(--deco-letter);
+            line-height:1; top:-10%; right:-5%;
+            pointer-events:none; user-select:none;
+            transition:color 0.4s;
+        }
+        .about-hero::after {
+            content:'';
+            position:absolute; width:600px; height:600px; border-radius:50%;
+            background:radial-gradient(circle, var(--orb-col) 0%, transparent 70%);
+            bottom:-10%; right:10%;
+            animation:drift 14s ease-in-out infinite alternate;
+            pointer-events:none;
+        }
+        @keyframes drift { from{transform:translate(0,0)} to{transform:translate(30px,25px)} }
+
+        .hero-inner {
+            max-width:1300px; margin:0 auto; width:100%;
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:6rem; align-items:center;
+            position:relative; z-index:1;
+        }
+
+        .hero-text { animation:fadeUp 1.1s cubic-bezier(0.23,1,0.32,1) forwards; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(35px)} to{opacity:1;transform:translateY(0)} }
+
+        .eyebrow { font-size:0.74rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--sage); display:block; margin-bottom:1.2rem; }
+
+        .about-hero h1 {
+            font-family:'Cormorant Garamond',serif;
+            font-size:clamp(3.8rem,6.5vw,6.5rem);
+            font-weight:300; line-height:1.05; margin-bottom:1.5rem;
+        }
+        .about-hero h1 em { font-style:italic; color:var(--gold); }
+        .about-hero .hero-text p { font-size:1.05rem; line-height:1.9; color:var(--text-dim); max-width:440px; }
+
+        .hero-manifesto {
+            border-left:1px solid var(--border);
+            padding-left:3rem;
+            animation:fadeUp 1.1s 0.3s cubic-bezier(0.23,1,0.32,1) both;
+        }
+        .manifesto-quote {
+            font-family:'Cormorant Garamond',serif;
+            font-size:clamp(1.7rem,2.5vw,2.5rem);
+            font-weight:300; font-style:italic; line-height:1.5;
+            color:var(--text-dim); margin-bottom:2.5rem;
+        }
+        .manifesto-quote strong { color:var(--cream); font-style:normal; font-weight:400; }
+        .manifesto-meta { font-size:0.74rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dimmer); }
+
+        /* ═══════════════════════════════════
+           SHARED LABELS
+        ═══════════════════════════════════ */
+        .section-label { font-size:0.74rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--sage); display:block; margin-bottom:1rem; }
+        .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.8rem,4.5vw,4.2rem); font-weight:300; line-height:1.1; }
+        .section-title em { font-style:italic; color:var(--gold); }
+
+        /* ═══════════════════════════════════
+           PILLARS
+        ═══════════════════════════════════ */
+        .pillars-section { padding:8rem 4rem; }
+        .pillars-inner { max-width:1300px; margin:0 auto; }
+
+        .features-header {
+            margin-bottom:5rem;
+            display:grid; grid-template-columns:1fr 1fr;
+            gap:3rem; align-items:end;
+            border-bottom:1px solid var(--border); padding-bottom:3rem;
+        }
+        .features-desc { color:var(--text-dim); line-height:1.9; font-size:1rem; max-width:400px; margin-left:auto; }
+
+        .feature-grid {
+            display:grid; grid-template-columns:repeat(3,1fr);
+            gap:1px; background:var(--border); border:1px solid var(--border);
+        }
+        .feature-card:last-child:nth-child(3n - 1) { grid-column:span 2; }
+
+        .feature-card {
+            background:var(--card-bg);
+            padding:3.5rem 3rem; position:relative; overflow:hidden;
+            transition:background 0.4s;
+        }
+        .feature-card::after {
+            content:''; position:absolute; left:0; bottom:0; right:0;
+            height:2px; background:linear-gradient(to right, transparent, var(--gold), transparent);
+            transform:scaleX(0); transform-origin:center; transition:transform 0.5s;
+        }
+        .feature-card:hover { background:var(--card-hover); }
+        .feature-card:hover::after { transform:scaleX(1); }
+
+        .feature-num { font-family:'Cormorant Garamond',serif; font-size:4rem; font-weight:300; color:var(--gold); opacity:0.1; line-height:1; margin-bottom:1.8rem; transition:opacity 0.4s; }
+        .feature-card:hover .feature-num { opacity:0.25; }
+        .feature-icon { font-size:1.6rem; margin-bottom:1rem; display:block; }
+        .feature-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.55rem; font-weight:400; margin-bottom:0.9rem; }
+        .feature-card p { color:var(--text-dim); font-size:0.94rem; line-height:1.85; }
+
+        /* ═══════════════════════════════════
+           SURVEY
+        ═══════════════════════════════════ */
+        .survey { padding:8rem 4rem; background:var(--survey-bg); transition:background 0.4s; }
+        .survey-inner { max-width:1300px; margin:0 auto; }
+        .survey-header { margin-bottom:5rem; display:flex; justify-content:space-between; align-items:flex-end; }
+        .survey-sub { color:var(--text-dimmer); font-size:0.84rem; letter-spacing:0.06em; margin-top:0.5rem; display:block; }
+
+        .survey-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:0; border:1px solid var(--border); }
+        .survey-card {
+            padding:4rem 2.5rem 3rem; text-align:center;
+            border-right:1px solid var(--border);
+            position:relative; overflow:hidden; transition:background 0.4s;
+        }
+        .survey-card:last-child { border-right:none; }
+        .survey-card:hover { background:var(--card-hover); }
+
+        .survey-bar { position:absolute; bottom:0; left:0; right:0; height:3px; background:linear-gradient(to right, var(--sage), var(--gold)); transform:scaleX(0); transform-origin:left; transition:transform 1.2s cubic-bezier(0.23,1,0.32,1); }
+        .survey-card.counted .survey-bar { transform:scaleX(1); }
+
+        .survey-pct { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,4vw,4.5rem); font-weight:300; line-height:1; margin-bottom:1rem; display:block; }
+        .survey-card:nth-child(1) .survey-pct { color:var(--gold); }
+        .survey-card:nth-child(2) .survey-pct { color:#bfa882; }
+        .survey-card:nth-child(3) .survey-pct { color:var(--sage); }
+        .survey-card:nth-child(4) .survey-pct { color:#9aaa8e; }
+        .survey-card:nth-child(5) .survey-pct { color:var(--gold); }
+        .survey-card p { font-size:0.84rem; color:var(--text-dimmer); line-height:1.65; letter-spacing:0.04em; }
+
+        .survey-conclusion {
+            margin-top:3rem; padding:3rem;
+            border:1px solid var(--border); background:var(--glass);
+            display:grid; grid-template-columns:4px 1fr;
+            gap:2.5rem; align-items:center;
+        }
+        .conclusion-bar { background:linear-gradient(to bottom, var(--gold), var(--sage)); border-radius:100px; align-self:stretch; }
+        .conclusion-text { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:300; font-style:italic; line-height:1.65; color:var(--conclusion-col); transition:color 0.4s; }
+
+        /* ═══════════════════════════════════
+           REVEAL
+        ═══════════════════════════════════ */
+        .reveal { opacity:0; transform:translateY(28px); transition:opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1); }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .reveal-delay-1 { transition-delay:0.08s; }
+        .reveal-delay-2 { transition-delay:0.16s; }
+        .reveal-delay-3 { transition-delay:0.24s; }
+        .reveal-delay-4 { transition-delay:0.32s; }
+        .reveal-delay-5 { transition-delay:0.40s; }
+
+        /* ═══════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════ */
+        footer { padding:3rem 4rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:300; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); }
+        .footer-tagline { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:var(--text-dim); }
+        .footer-copy { font-size:0.76rem; letter-spacing:0.08em; color:var(--text-dimmer); }
+
+        /* ═══════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════ */
+        @media (max-width:1000px) {
+            .hero-inner { grid-template-columns:1fr; gap:3rem; }
+            .hero-manifesto { border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:3rem; }
+            .features-header { grid-template-columns:1fr; }
+            .feature-grid { grid-template-columns:1fr 1fr; }
+            .feature-card:last-child { grid-column:span 2; }
+            .survey-grid { grid-template-columns:1fr 1fr; }
+            .survey-card { border-right:none; border-bottom:1px solid var(--border); }
+            .survey-card:nth-child(even) { border-left:1px solid var(--border); }
+            .survey-header { flex-direction:column; align-items:flex-start; gap:1rem; }
+        }
+        @media (max-width:700px) {
+            .navbar { padding:1.2rem 2rem; }
+            nav a:not(.btn-nav) { display:none; }
+            .theme-toggle { display:flex; }
+            .about-hero, .pillars-section, .survey { padding-left:2rem; padding-right:2rem; }
+            .feature-grid { grid-template-columns:1fr; }
+            .feature-card:last-child { grid-column:span 1; }
+            .survey-grid { grid-template-columns:1fr; }
+            .survey-card:nth-child(even) { border-left:none; }
+            footer { flex-direction:column; gap:1rem; text-align:center; padding:2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">OneSip</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html" class="btn-nav active">Why OneSip?</a>
+        <a href="products.html">Products</a>
+        <a href="subscription.html">Subscription</a>
+        <a href="cart.html">Cart</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <span class="theme-toggle-thumb" id="toggleThumb"></span>
+        </button>
+        <a href="login.html" class="btn-nav">Login</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="about-hero">
+    <div class="hero-inner">
+        <div class="hero-text">
+            <span class="eyebrow">Our Philosophy</span>
+            <h1>Why<br><em>OneSip?</em></h1>
+            <p>Revolutionizing hydration with intelligence, transparency, and the kind of convenience your body deserves every single day.</p>
+        </div>
+        <div class="hero-manifesto">
+            <p class="manifesto-quote">"We believe the drinks you choose are as important as the food you eat. <strong>Every sip is a decision about your health.</strong>"</p>
+            <span class="manifesto-meta">The OneSip Founding Principle, 2024</span>
+        </div>
+    </div>
+</section>
+
+<!-- PILLARS -->
+<section class="pillars-section">
+    <div class="pillars-inner">
+        <div class="features-header reveal">
+            <div>
+                <span class="section-label">Our Pillars</span>
+                <h2 class="section-title">What Makes Us<br><em>Different</em></h2>
+            </div>
+            <p class="features-desc">We didn't build another grocery app with a beverages section. We built the only marketplace designed from the ground up, exclusively for what you drink.</p>
+        </div>
+        <div class="feature-grid">
+            <div class="feature-card reveal reveal-delay-1">
+                <div class="feature-num">01</div>
+                <span class="feature-icon">🍹</span>
+                <h3>Beverage-Only Marketplace</h3>
+                <p>Unlike generic grocery apps, OneSip specializes exclusively in beverages — giving you a curated, premium hydration experience with zero noise.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-2">
+                <div class="feature-num">02</div>
+                <span class="feature-icon">🥗</span>
+                <h3>Health-Based Filters</h3>
+                <p>Filter by sugar-free, protein-rich, vegan, detox, or wellness categories. Make smarter drink choices without the research.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-3">
+                <div class="feature-num">03</div>
+                <span class="feature-icon">🤖</span>
+                <h3>Personalized Recommendations</h3>
+                <p>Our smart engine suggests products based on your purchase behavior, health goals, and preferences. It learns, so you don't have to.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-4">
+                <div class="feature-num">04</div>
+                <span class="feature-icon">🔁</span>
+                <h3>Subscription Hydration Plans</h3>
+                <p>Automated monthly delivery for uninterrupted hydration. Save up to 15% and never run dry again.</p>
+            </div>
+            <div class="feature-card reveal reveal-delay-5">
+                <div class="feature-num">05</div>
+                <span class="feature-icon">📊</span>
+                <h3>Transparent Nutrition Insights</h3>
+                <p>View full ingredient lists, calorie content, and sugar levels before you buy. Radical transparency, always.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SURVEY -->
+<section class="survey">
+    <div class="survey-inner">
+        <div class="survey-header reveal">
+            <div>
+                <span class="section-label">Research & Validation</span>
+                <h2 class="section-title">Built on <em>Real Insights</em></h2>
+                <span class="survey-sub">Survey conducted with 100+ urban consumer respondents, 2024.</span>
+            </div>
+        </div>
+        <div class="survey-grid">
+            <div class="survey-card reveal reveal-delay-1">
+                <span class="survey-pct" data-target="65">0%</span>
+                <p>Prefer health-filtered browsing when choosing beverages</p>
+                <div class="survey-bar"></div>
+            </div>
+            <div class="survey-card reveal reveal-delay-2">
+                <span class="survey-pct" data-target="70">0%</span>
+                <p>Want subscription delivery options for regular purchases</p>
+                <div class="survey-bar"></div>
+            </div>
+            <div class="survey-card reveal reveal-delay-3">
+                <span class="survey-pct" data-target="58">0%</span>
+                <p>Actively seek and demand sugar-free beverages</p>
+                <div class="survey-bar"></div>
+            </div>
+            <div class="survey-card reveal reveal-delay-4">
+                <span class="survey-pct" data-target="60">0%</span>
+                <p>Prefer full nutritional transparency before purchasing</p>
+                <div class="survey-bar"></div>
+            </div>
+            <div class="survey-card reveal reveal-delay-5">
+                <span class="survey-pct" data-target="55">0%</span>
+                <p>Would choose a beverage-only marketplace over generics</p>
+                <div class="survey-bar"></div>
+            </div>
+        </div>
+        <div class="survey-conclusion reveal" style="margin-top:3rem;">
+            <div class="conclusion-bar"></div>
+            <p class="conclusion-text">Based on these insights, OneSip implemented intelligent health-based filtering, AI-driven personalized recommendations, and a seamless subscription-based hydration system — each feature validated by real consumer demand.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <span class="footer-logo">OneSip</span>
+    <span class="footer-tagline">Where Health Meets Hydration</span>
+    <span class="footer-copy">© 2026 OneSip. All rights reserved.</span>
+</footer>
+
+<script>
+/* ── Cursor ── */
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.transform=`translate(${mx-4}px,${my-4}px)`; });
+(function anim(){ rx+=(mx-rx-18)*0.12; ry+=(my-ry-18)*0.12; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(anim); })();
+document.addEventListener('mouseover', e => { if(e.target.matches('a,button,.feature-card,.survey-card')){ ring.style.width='54px'; ring.style.height='54px'; ring.style.borderColor='rgba(201,169,110,0.8)'; }});
+document.addEventListener('mouseout',  e => { if(e.target.matches('a,button,.feature-card,.survey-card')){ ring.style.width='36px'; ring.style.height='36px'; ring.style.borderColor='rgba(201,169,110,0.5)'; }});
+
+/* ── Reveal ── */
+const revealObs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── Survey count-up ── */
+function countUp(el, target, duration=1600) {
+    let start=0;
+    const step = ts => {
+        if(!start) start=ts;
+        const p = Math.min((ts-start)/duration, 1);
+        el.textContent = Math.round((1-Math.pow(1-p,3))*target) + '%';
+        if(p<1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+}
+const surveyObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+        if(e.isIntersecting && !e.target.classList.contains('counted')) {
+            e.target.classList.add('counted');
+            const pctEl = e.target.querySelector('.survey-pct');
+            countUp(pctEl, parseInt(pctEl.dataset.target));
+        }
+    });
+}, { threshold:0.3 });
+document.querySelectorAll('.survey-card').forEach(c => surveyObs.observe(c));
+
+/* ── Theme Toggle ── */
+const THEME_KEY = 'onesip_theme';
+const html = document.documentElement;
+const toggleBtn = document.getElementById('themeToggle');
+const thumb = document.getElementById('toggleThumb');
+const ICONS = { dark:'🌙', light:'☀️' };
+
+function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+    thumb.textContent = ICONS[theme];
+}
+
+const saved = localStorage.getItem(THEME_KEY);
+applyTheme(saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+
+toggleBtn.addEventListener('click', () => {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

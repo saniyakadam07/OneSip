@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plans — OneSip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════
+           DARK THEME (default)
+        ═══════════════════════════════════ */
+        :root {
+            --ink:          #0d0d0a;
+            --ink-nav:      rgba(13,13,10,0.82);
+            --cream:        #f5f0e8;
+            --sage:         #7a8c6e;
+            --gold:         #c9a96e;
+            --gold-hover:   #d4b07e;
+            --border:       rgba(201,169,110,0.2);
+            --glass:        rgba(245,240,232,0.06);
+            --card-bg:      #0d0d0a;
+            --card-hover:   rgba(201,169,110,0.05);
+            --text-dim:     rgba(245,240,232,0.55);
+            --text-dimmer:  rgba(245,240,232,0.38);
+            --orb-sage:     rgba(122,140,110,0.18);
+            --orb-gold:     rgba(201,169,110,0.12);
+            --nav-link:     rgba(245,240,232,0.65);
+            --shadow:       rgba(0,0,0,0.5);
+            --toggle-track: rgba(201,169,110,0.15);
+            --table-head:   rgba(201,169,110,0.03);
+            --table-hover:  rgba(201,169,110,0.03);
+            --featured-bg:  rgba(201,169,110,0.06);
+            --modal-bg:     #121210;
+            --check-yes:    #7a8c6e;
+            --check-no:     rgba(245,240,232,0.15);
+        }
+
+        /* ═══════════════════════════════════
+           LIGHT THEME
+        ═══════════════════════════════════ */
+        [data-theme="light"] {
+            --ink:          #f7f3ec;
+            --ink-nav:      rgba(247,243,236,0.92);
+            --cream:        #1c1a14;
+            --sage:         #5a7050;
+            --gold:         #9a7038;
+            --gold-hover:   #b08040;
+            --border:       rgba(100,80,40,0.18);
+            --glass:        rgba(20,18,10,0.05);
+            --card-bg:      #f7f3ec;
+            --card-hover:   rgba(154,112,56,0.06);
+            --text-dim:     rgba(28,26,20,0.6);
+            --text-dimmer:  rgba(28,26,20,0.4);
+            --orb-sage:     rgba(80,110,70,0.1);
+            --orb-gold:     rgba(154,112,56,0.1);
+            --nav-link:     rgba(28,26,20,0.6);
+            --shadow:       rgba(0,0,0,0.12);
+            --toggle-track: rgba(154,112,56,0.15);
+            --table-head:   rgba(154,112,56,0.04);
+            --table-hover:  rgba(154,112,56,0.03);
+            --featured-bg:  rgba(154,112,56,0.07);
+            --modal-bg:     #ede9e0;
+            --check-yes:    #5a7050;
+            --check-no:     rgba(28,26,20,0.18);
+        }
+
+        /* ═══════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════ */
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--ink);
+            color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: 17px;
+            line-height: 1.65;
+            overflow-x: hidden;
+            cursor: none;
+            min-height: 100vh;
+            transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9997; opacity: 0.35;
+        }
+
+        /* ── Cursor ── */
+        .cursor { width:8px; height:8px; background:var(--gold); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; mix-blend-mode:difference; }
+        .cursor-ring { width:36px; height:36px; border:1px solid rgba(201,169,110,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:width 0.3s, height 0.3s, border-color 0.3s; }
+
+        /* ═══════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════ */
+        .navbar {
+            position: fixed; top:0; left:0; right:0; z-index:100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1.5rem 4rem;
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(20px);
+            background: var(--ink-nav);
+            transition: background 0.4s ease, border-color 0.4s ease;
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem; font-weight: 300;
+            letter-spacing: 0.12em; color: var(--gold);
+            text-transform: uppercase;
+        }
+
+        nav { display: flex; align-items: center; gap: 2.5rem; }
+        nav a {
+            color: var(--nav-link); text-decoration: none;
+            font-size: 0.82rem; letter-spacing: 0.12em; text-transform: uppercase;
+            transition: color 0.3s; position: relative; cursor: none;
+        }
+        nav a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 0.3s; }
+        nav a:hover { color: var(--cream); }
+        nav a:hover::after { transform: scaleX(1); }
+        nav a.active { color: var(--gold); }
+        nav a.active::after { transform: scaleX(1); }
+
+        .btn-nav {
+            border: 1px solid var(--border) !important;
+            padding: 0.5rem 1.4rem; border-radius: 100px;
+            color: var(--cream) !important; background: var(--glass);
+            backdrop-filter: blur(10px);
+        }
+        .btn-nav::after { display: none !important; }
+        .btn-nav:hover { background: var(--gold) !important; color: var(--ink) !important; border-color: var(--gold) !important; }
+
+        /* ── Theme Toggle ── */
+        .theme-toggle {
+            display: flex; align-items: center;
+            width: 52px; height: 28px;
+            background: var(--toggle-track);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            cursor: none; position: relative;
+            transition: background 0.35s, border-color 0.35s;
+            flex-shrink: 0;
+        }
+        .theme-toggle-thumb {
+            position: absolute; left: 4px;
+            width: 18px; height: 18px; border-radius: 50%;
+            background: var(--gold);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem;
+            transition: transform 0.4s cubic-bezier(0.23,1,0.32,1);
+            pointer-events: none;
+        }
+        [data-theme="light"] .theme-toggle-thumb { transform: translateX(24px); }
+
+        /* ═══════════════════════════════════
+           MODAL
+        ═══════════════════════════════════ */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(13,13,10,0.85);
+            backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+        .modal {
+            border: 1px solid var(--border);
+            background: var(--modal-bg);
+            padding: 4rem;
+            max-width: 500px; width: 90%;
+            text-align: center;
+            position: relative;
+            transform: translateY(20px);
+            transition: transform 0.5s cubic-bezier(0.23,1,0.32,1);
+        }
+        .modal-overlay.show .modal { transform: translateY(0); }
+        .modal-icon { font-size: 3rem; margin-bottom: 1.5rem; display: block; }
+        .modal h3 { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 300; margin-bottom: 0.8rem; }
+        .modal h3 em { font-style: italic; color: var(--gold); }
+        .modal p { font-size: 0.95rem; color: var(--text-dim); line-height: 1.8; margin-bottom: 2.5rem; }
+        .modal-close {
+            background: none; border: 1px solid var(--border);
+            color: var(--cream); padding: 0.9rem 2.5rem;
+            font-family: 'DM Sans', sans-serif; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+            cursor: none; transition: border-color 0.3s, background 0.3s;
+        }
+        .modal-close:hover { border-color: var(--gold); background: rgba(201,169,110,0.08); }
+        .modal-top-bar { position: absolute; top:0; left:0; right:0; height:2px; background: linear-gradient(to right, transparent, var(--gold), transparent); }
+
+        /* ═══════════════════════════════════
+           HERO
+        ═══════════════════════════════════ */
+        .subscription-hero {
+            padding: 12rem 4rem 7rem;
+            max-width: 1300px; margin: 0 auto;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 5rem; align-items: end;
+            animation: fadeUp 1.1s cubic-bezier(0.23,1,0.32,1) forwards;
+            position: relative;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ambient orbs behind hero */
+        .hero-orb-1 {
+            position: fixed; width: 600px; height: 600px; border-radius: 50%;
+            background: radial-gradient(circle, var(--orb-sage) 0%, transparent 70%);
+            top: -15%; left: -10%; pointer-events: none; z-index: 0;
+            animation: drift 12s ease-in-out infinite alternate;
+        }
+        .hero-orb-2 {
+            position: fixed; width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle, var(--orb-gold) 0%, transparent 70%);
+            bottom: 10%; right: 5%; pointer-events: none; z-index: 0;
+            animation: drift 16s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes drift { from{transform:translate(0,0) scale(1)} to{transform:translate(40px,30px) scale(1.1)} }
+
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 0.8rem;
+            font-size: 0.8rem; letter-spacing: 0.25em; text-transform: uppercase;
+            color: var(--gold); margin-bottom: 2rem;
+        }
+        .hero-eyebrow span { display: block; width: 30px; height: 1px; background: var(--gold); }
+
+        .subscription-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3.5rem, 6vw, 6rem);
+            font-weight: 300; line-height: 1.05;
+        }
+        .subscription-hero h1 em { font-style: italic; color: var(--gold); }
+
+        .hero-right {
+            border-left: 1px solid var(--border);
+            padding-left: 3.5rem;
+            display: flex; flex-direction: column; gap: 2.5rem;
+        }
+        .hero-right p {
+            font-size: 1rem; line-height: 1.9; color: var(--text-dim);
+        }
+
+        /* Billing toggle */
+        .billing-label {
+            font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--text-dimmer); margin-bottom: 0.8rem; display: block;
+        }
+        .billing-toggle {
+            display: inline-flex; align-items: center;
+            border: 1px solid var(--border);
+            overflow: hidden; width: fit-content;
+        }
+        .toggle-opt {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--text-dimmer); background: none; border: none; cursor: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+        .toggle-opt.active { background: var(--gold); color: var(--ink); }
+        .toggle-divider { width: 1px; background: var(--border); align-self: stretch; }
+        .save-badge {
+            font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--sage); border: 1px solid rgba(122,140,110,0.3);
+            padding: 0.2rem 0.5rem; margin-left: 0.5rem; border-radius: 100px;
+        }
+
+        /* ── Section divider ── */
+        .section-divider {
+            max-width: 1300px; margin: 0 auto; padding: 0 4rem;
+            display: flex; align-items: center; gap: 2rem; margin-bottom: 3.5rem;
+        }
+        .divider-line { flex: 1; height: 1px; background: var(--border); }
+        .divider-label {
+            font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--text-dimmer); white-space: nowrap;
+        }
+
+        /* ═══════════════════════════════════
+           PRICING
+        ═══════════════════════════════════ */
+        .pricing-section {
+            max-width: 1300px; margin: 0 auto;
+            padding: 0 4rem 9rem;
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        .pricing-card {
+            border: 1px solid var(--border);
+            background: var(--glass);
+            padding: 3.5rem 3rem;
+            position: relative; overflow: hidden;
+            transition: border-color 0.4s, transform 0.4s cubic-bezier(0.23,1,0.32,1), box-shadow 0.4s, background 0.4s;
+            cursor: none;
+        }
+        .pricing-card::before {
+            content: '';
+            position: absolute; top:0; left:0; right:0; height:2px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+            transform: scaleX(0); transform-origin: center; transition: transform 0.5s;
+        }
+        .pricing-card:hover { border-color: rgba(201,169,110,0.4); transform: translateY(-8px); box-shadow: 0 30px 60px var(--shadow); }
+        .pricing-card:hover::before { transform: scaleX(1); }
+
+        .pricing-card.featured {
+            border-color: rgba(201,169,110,0.5);
+            background: var(--featured-bg);
+            transform: translateY(-12px);
+            box-shadow: 0 40px 80px var(--shadow), 0 0 0 1px rgba(201,169,110,0.2);
+        }
+        .pricing-card.featured::before { transform: scaleX(1); }
+        .pricing-card.featured:hover { transform: translateY(-20px); }
+        .pricing-card.featured::after {
+            content: '';
+            position: absolute; top:-60px; left:50%; transform:translateX(-50%);
+            width:200px; height:200px; border-radius:50%;
+            background: radial-gradient(circle, rgba(201,169,110,0.12), transparent 70%);
+            pointer-events: none;
+        }
+
+        .plan-badge {
+            display: inline-block; margin-bottom: 2rem;
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            padding: 0.35rem 0.9rem; border-radius: 100px;
+            border: 1px solid rgba(201,169,110,0.45); color: var(--gold);
+        }
+        .plan-icon { font-size: 2.4rem; display: block; margin-bottom: 1.5rem; }
+        .pricing-card h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem; font-weight: 400; margin-bottom: 0.5rem; line-height: 1.2;
+        }
+        .plan-tagline {
+            font-size: 0.88rem; color: var(--text-dimmer);
+            margin-bottom: 2.5rem; display: block; line-height: 1.6;
+        }
+
+        .price-big {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 4vw, 4.2rem);
+            font-weight: 300; color: var(--gold); line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .price-big sup { font-size: 1.3rem; vertical-align: super; }
+        .price-big span { font-size: 0.95rem; color: var(--text-dimmer); font-family: 'DM Sans', sans-serif; font-weight: 300; }
+        .price-annual { font-size: 0.78rem; color: var(--text-dimmer); margin-bottom: 2.5rem; display: block; min-height: 1.2em; }
+
+        .plan-divider { height: 1px; background: var(--border); margin-bottom: 2rem; }
+
+        .plan-items { list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 3rem; }
+        .plan-items li { display: flex; align-items: center; gap: 0.8rem; font-size: 0.9rem; color: var(--text-dim); }
+        .plan-items li .check {
+            width: 20px; height: 20px; flex-shrink: 0; border-radius: 50%;
+            background: rgba(122,140,110,0.15);
+            border: 1px solid rgba(122,140,110,0.35);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; color: var(--sage);
+        }
+        .plan-items li.highlight { color: var(--cream); }
+        .plan-items li.highlight .check { background: rgba(201,169,110,0.15); border-color: rgba(201,169,110,0.35); color: var(--gold); }
+
+        .btn-subscribe {
+            width: 100%; background: none;
+            border: 1px solid var(--border); color: var(--cream);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem; letter-spacing: 0.15em; text-transform: uppercase;
+            padding: 1.1rem; cursor: none;
+            transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.2s;
+        }
+        .btn-subscribe:hover { border-color: var(--gold); color: var(--gold); }
+        .btn-subscribe.primary { background: var(--gold); border-color: var(--gold); color: var(--ink); }
+        .btn-subscribe.primary:hover { background: var(--gold-hover); transform: translateY(-1px); box-shadow: 0 8px 30px rgba(201,169,110,0.3); }
+        .btn-subscribe.success { background: rgba(122,140,110,0.15); border-color: rgba(122,140,110,0.4); color: var(--sage); }
+
+        /* ═══════════════════════════════════
+           COMPARE TABLE
+        ═══════════════════════════════════ */
+        .compare-section { max-width: 1300px; margin: 0 auto; padding: 0 4rem 9rem; }
+        .compare-header {
+            margin-bottom: 4rem;
+            display: flex; justify-content: space-between; align-items: flex-end;
+            border-bottom: 1px solid var(--border); padding-bottom: 3rem;
+        }
+        .section-label {
+            font-size: 0.74rem; letter-spacing: 0.25em; text-transform: uppercase;
+            color: var(--sage); display: block; margin-bottom: 0.8rem;
+        }
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2.2rem, 3vw, 3.2rem); font-weight: 300;
+        }
+        .section-title em { font-style: italic; color: var(--gold); }
+
+        .compare-table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); }
+        .compare-table th, .compare-table td {
+            padding: 1.3rem 1.8rem; text-align: left;
+            border-bottom: 1px solid var(--border); font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .compare-table th {
+            font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase;
+            color: var(--text-dimmer); font-weight: 400;
+            background: var(--table-head);
+        }
+        .compare-table th.featured-col, .compare-table td.featured-col {
+            background: var(--featured-bg);
+            border-left: 1px solid rgba(201,169,110,0.2);
+            border-right: 1px solid rgba(201,169,110,0.2);
+        }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table tr:hover td { background: var(--table-hover); }
+        .compare-table tr:hover td.featured-col { background: var(--featured-bg); }
+        .check-yes { color: var(--check-yes); font-size: 1rem; }
+        .check-no { color: var(--check-no); font-size: 1rem; }
+        .plan-name-cell { font-family: 'Cormorant Garamond', serif; font-size: 1.05rem; font-weight: 400; }
+
+        /* ═══════════════════════════════════
+           REVEAL
+        ═══════════════════════════════════ */
+        .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1); }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+        .reveal-delay-1 { transition-delay:0.1s; }
+        .reveal-delay-2 { transition-delay:0.2s; }
+        .reveal-delay-3 { transition-delay:0.3s; }
+
+        /* ═══════════════════════════════════
+           FOOTER
+        ═══════════════════════════════════ */
+        footer {
+            padding: 3rem 4rem; border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:300; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); }
+        .footer-tagline { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:var(--text-dim); }
+        .footer-copy { font-size:0.76rem; letter-spacing:0.08em; color:var(--text-dimmer); }
+
+        /* ═══════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════ */
+        @media (max-width: 1000px) {
+            .subscription-hero { grid-template-columns:1fr; gap:3rem; }
+            .hero-right { border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:3rem; }
+            .pricing-section { grid-template-columns:1fr; max-width:480px; }
+            .pricing-card.featured { transform:none; }
+            .compare-section { overflow-x:auto; }
+        }
+        @media (max-width: 700px) {
+            .navbar { padding:1.2rem 2rem; }
+            nav a:not(.btn-nav) { display:none; }
+            .subscription-hero, .pricing-section, .compare-section { padding-left:2rem; padding-right:2rem; }
+            footer { flex-direction:column; gap:1rem; text-align:center; padding:2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Ambient orbs -->
+<div class="hero-orb-1"></div>
+<div class="hero-orb-2"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <div class="modal-top-bar"></div>
+        <span class="modal-icon" id="modalIcon">🎉</span>
+        <h3>Welcome to <em id="modalPlan"></em></h3>
+        <p id="modalDesc">Your subscription is confirmed. Your first delivery will arrive within 3–5 business days. You'll receive a confirmation email shortly.</p>
+        <button class="modal-close" onclick="closeModal()">Continue Exploring</button>
+    </div>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">OneSip</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">Why OneSip?</a>
+        <a href="products.html">Products</a>
+        <a href="subscription.html" class="btn-nav active">Subscription</a>
+        <a href="cart.html">Cart</a>
+
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark theme">
+            <span class="theme-toggle-thumb" id="toggleThumb"></span>
+        </button>
+
+        <a href="login.html" class="btn-nav">Login</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<div class="subscription-hero">
+    <div class="hero-left">
+        <div class="hero-eyebrow">
+            <span></span>Recurring Wellness<span></span>
+        </div>
+        <h1>Hydration<br><em>Plans</em></h1>
+    </div>
+    <div class="hero-right">
+        <p>Save more, stay healthy. Get your curated beverages delivered automatically every month — cancel or modify anytime, no questions asked.</p>
+        <div>
+            <span class="billing-label">Billing Cycle</span>
+            <div class="billing-toggle">
+                <button class="toggle-opt active" onclick="setBilling('monthly', this)">Monthly</button>
+                <div class="toggle-divider"></div>
+                <button class="toggle-opt" onclick="setBilling('annual', this)">Annual <span class="save-badge">Save 20%</span></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-divider">
+    <div class="divider-line"></div>
+    <div class="divider-label">Choose your plan</div>
+    <div class="divider-line"></div>
+</div>
+
+<!-- PRICING -->
+<div class="pricing-section">
+
+    <!-- Plan 1 -->
+    <div class="pricing-card reveal reveal-delay-1">
+        <span class="plan-icon">🍵</span>
+        <h3>Detox Starter</h3>
+        <span class="plan-tagline">Perfect for beginners exploring wellness drinks</span>
+        <div class="price-big" id="price-detox"><sup>₹</sup>999<span>/month</span></div>
+        <span class="price-annual" id="price-detox-annual">&nbsp;</span>
+        <div class="plan-divider"></div>
+        <ul class="plan-items">
+            <li><span class="check">✓</span> 8 Cold Pressed Juices</li>
+            <li><span class="check">✓</span> 4 Herbal Teas</li>
+            <li><span class="check">✓</span> Free Delivery</li>
+            <li class="highlight"><span class="check">✓</span> 10% Savings</li>
+        </ul>
+        <button class="btn-subscribe" id="btn-detox" onclick="subscribe('Detox Starter', '🍵', 'detox')">Subscribe Now</button>
+    </div>
+
+    <!-- Plan 2: Featured -->
+    <div class="pricing-card featured reveal reveal-delay-2">
+        <span class="plan-badge">Most Popular</span>
+        <span class="plan-icon">☕</span>
+        <h3>Tea & Coffee Premium</h3>
+        <span class="plan-tagline">Our bestselling blend for everyday ritual</span>
+        <div class="price-big" id="price-tea"><sup>₹</sup>799<span>/month</span></div>
+        <span class="price-annual" id="price-tea-annual">&nbsp;</span>
+        <div class="plan-divider"></div>
+        <ul class="plan-items">
+            <li><span class="check">✓</span> 10 Premium Teas</li>
+            <li><span class="check">✓</span> 5 Specialty Coffees</li>
+            <li><span class="check">✓</span> Free Delivery</li>
+            <li class="highlight"><span class="check">✓</span> 12% Savings</li>
+        </ul>
+        <button class="btn-subscribe primary" id="btn-tea" onclick="subscribe('Tea & Coffee Premium', '☕', 'tea')">Subscribe Now</button>
+    </div>
+
+    <!-- Plan 3 -->
+    <div class="pricing-card reveal reveal-delay-3">
+        <span class="plan-icon">💪</span>
+        <h3>Fitness Protein Pro</h3>
+        <span class="plan-tagline">Maximum performance for the dedicated athlete</span>
+        <div class="price-big" id="price-fitness"><sup>₹</sup>1299<span>/month</span></div>
+        <span class="price-annual" id="price-fitness-annual">&nbsp;</span>
+        <div class="plan-divider"></div>
+        <ul class="plan-items">
+            <li><span class="check">✓</span> 12 Protein Shakes</li>
+            <li><span class="check">✓</span> 4 Energy Drinks</li>
+            <li><span class="check">✓</span> Nutrition Guide</li>
+            <li class="highlight"><span class="check">✓</span> 15% Savings</li>
+        </ul>
+        <button class="btn-subscribe" id="btn-fitness" onclick="subscribe('Fitness Protein Pro', '💪', 'fitness')">Subscribe Now</button>
+    </div>
+</div>
+
+<!-- COMPARE TABLE -->
+<section class="compare-section">
+    <div class="compare-header reveal">
+        <div>
+            <span class="section-label">Full Breakdown</span>
+            <h2 class="section-title">Compare <em>Plans</em></h2>
+        </div>
+    </div>
+    <table class="compare-table reveal">
+        <thead>
+            <tr>
+                <th style="width:30%">Feature</th>
+                <th>Detox Starter</th>
+                <th class="featured-col">Tea & Coffee Premium</th>
+                <th>Fitness Protein Pro</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="plan-name-cell">Monthly Price</td>
+                <td>₹999</td>
+                <td class="featured-col">₹799</td>
+                <td>₹1,299</td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Items per Month</td>
+                <td>12 items</td>
+                <td class="featured-col">15 items</td>
+                <td>16 items</td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Free Delivery</td>
+                <td><span class="check-yes">✓</span></td>
+                <td class="featured-col"><span class="check-yes">✓</span></td>
+                <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Pause / Skip Month</td>
+                <td><span class="check-yes">✓</span></td>
+                <td class="featured-col"><span class="check-yes">✓</span></td>
+                <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Personalised Curation</td>
+                <td><span class="check-no">—</span></td>
+                <td class="featured-col"><span class="check-yes">✓</span></td>
+                <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Nutrition Guide</td>
+                <td><span class="check-no">—</span></td>
+                <td class="featured-col"><span class="check-no">—</span></td>
+                <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Priority Support</td>
+                <td><span class="check-no">—</span></td>
+                <td class="featured-col"><span class="check-yes">✓</span></td>
+                <td><span class="check-yes">✓</span></td>
+            </tr>
+            <tr>
+                <td class="plan-name-cell">Savings</td>
+                <td>10%</td>
+                <td class="featured-col" style="color:var(--gold);">12%</td>
+                <td>15%</td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <span class="footer-logo">OneSip</span>
+    <span class="footer-tagline">Where Health Meets Hydration</span>
+    <span class="footer-copy">© 2026 OneSip. All rights reserved.</span>
+</footer>
+
+<script>
+/* ── Auth Guard ── */
+(function() {
+    try { const s = JSON.parse(localStorage.getItem('onesip_session')); if (s && s.loggedIn) return; } catch {}
+    window.location.href = 'login.html?redirect=subscription.html';
+})();
+
+/* ── Cursor ── */
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.transform=`translate(${mx-4}px,${my-4}px)`; });
+(function anim(){ rx+=(mx-rx-18)*0.12; ry+=(my-ry-18)*0.12; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(anim); })();
+document.addEventListener('mouseover', e => { if(e.target.matches('a,button,.pricing-card')){ ring.style.width='54px'; ring.style.height='54px'; ring.style.borderColor='rgba(201,169,110,0.8)'; }});
+document.addEventListener('mouseout',  e => { if(e.target.matches('a,button,.pricing-card')){ ring.style.width='36px'; ring.style.height='36px'; ring.style.borderColor='rgba(201,169,110,0.5)'; }});
+
+/* ── Reveal ── */
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), { threshold:0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+/* ── Theme Toggle ── */
+const THEME_KEY = 'onesip_theme';
+const html = document.documentElement;
+const toggleBtn = document.getElementById('themeToggle');
+const thumb = document.getElementById('toggleThumb');
+const ICONS = { dark: '🌙', light: '☀️' };
+
+function applyTheme(theme) {
+    html.setAttribute('data-theme', theme);
+    localStorage.setItem(THEME_KEY, theme);
+    thumb.textContent = ICONS[theme];
+}
+
+const saved = localStorage.getItem(THEME_KEY);
+const preferred = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+applyTheme(preferred);
+
+toggleBtn.addEventListener('click', () => {
+    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+/* ── Navbar auth swap ── */
+function isLoggedIn() {
+    try { const s = JSON.parse(localStorage.getItem('onesip_session')); return !!(s && s.loggedIn); } catch { return false; }
+}
+function updateNavbar() {
+    const link = document.getElementById('authNavLink');
+    if (!link) return;
+    if (isLoggedIn()) { link.href = 'profile.html'; link.textContent = 'My Account'; }
+}
+updateNavbar();
+
+/* ── Billing Toggle ── */
+const prices = {
+    detox:   { monthly: 999,  annual: 799  },
+    tea:     { monthly: 799,  annual: 639  },
+    fitness: { monthly: 1299, annual: 1039 },
+};
+let billing = 'monthly';
+
+function setBilling(mode, btn) {
+    billing = mode;
+    document.querySelectorAll('.toggle-opt').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updatePrices();
+}
+
+function updatePrices() {
+    Object.keys(prices).forEach(key => {
+        const p = prices[key];
+        const el = document.getElementById(`price-${key}`);
+        const annualEl = document.getElementById(`price-${key}-annual`);
+        const val = billing === 'annual' ? p.annual : p.monthly;
+        el.innerHTML = `<sup>₹</sup>${val.toLocaleString('en-IN')}<span>/${billing === 'annual' ? 'mo, billed annually' : 'month'}</span>`;
+        annualEl.textContent = billing === 'annual' ? `₹${(val*12).toLocaleString('en-IN')} billed annually` : '\u00a0';
+    });
+}
+
+/* ── Subscribe ── */
+const subscribed = {};
+function subscribe(planName, icon, key) {
+    if(subscribed[key]) return;
+    subscribed[key] = true;
+    const btn = document.getElementById(`btn-${key}`);
+    btn.textContent = '✓ Subscribed';
+    btn.classList.remove('primary');
+    btn.classList.add('success');
+    btn.disabled = true;
+    document.getElementById('modalPlan').textContent = planName;
+    document.getElementById('modalIcon').textContent = icon;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+document.getElementById('modalOverlay').addEventListener('click', e => {
+    if(e.target === e.currentTarget) closeModal();
+});
+</script>
+</body>
+</html>

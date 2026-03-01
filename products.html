@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products — OneSip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ═══════════════════════════════════
+           DARK THEME (default)
+        ═══════════════════════════════════ */
+        :root {
+            --ink:          #0d0d0a;
+            --ink-nav:      rgba(13,13,10,0.88);
+            --cream:        #f5f0e8;
+            --sage:         #7a8c6e;
+            --gold:         #c9a96e;
+            --gold-hover:   #d4b07e;
+            --border:       rgba(201,169,110,0.18);
+            --glass:        rgba(245,240,232,0.04);
+            --card-bg:      #0d0d0a;
+            --card-hover:   rgba(201,169,110,0.04);
+            --text-dim:     rgba(245,240,232,0.5);
+            --text-dimmer:  rgba(245,240,232,0.32);
+            --nav-link:     rgba(245,240,232,0.58);
+            --toggle-track: rgba(201,169,110,0.14);
+            --sort-bg:      #1a1a17;
+            --shadow:       rgba(0,0,0,0.4);
+            --orb-sage:     rgba(122,140,110,0.18);
+            --orb-gold:     rgba(201,169,110,0.12);
+        }
+        /* ═══════════════════════════════════
+           LIGHT THEME
+        ═══════════════════════════════════ */
+        [data-theme="light"] {
+            --ink:          #f7f3ec;
+            --ink-nav:      rgba(247,243,236,0.92);
+            --cream:        #1c1a14;
+            --sage:         #5a7050;
+            --gold:         #9a7038;
+            --gold-hover:   #b08040;
+            --border:       rgba(100,80,40,0.18);
+            --glass:        rgba(20,18,10,0.05);
+            --card-bg:      #f7f3ec;
+            --card-hover:   rgba(154,112,56,0.06);
+            --text-dim:     rgba(28,26,20,0.58);
+            --text-dimmer:  rgba(28,26,20,0.38);
+            --nav-link:     rgba(28,26,20,0.6);
+            --toggle-track: rgba(154,112,56,0.15);
+            --sort-bg:      #ece8e0;
+            --shadow:       rgba(0,0,0,0.1);
+            --orb-sage:     rgba(80,110,70,0.1);
+            --orb-gold:     rgba(154,112,56,0.1);
+        }
+
+        /* ═══════════════════════════════════
+           RESET & BASE
+        ═══════════════════════════════════ */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body {
+            background:var(--ink); color:var(--cream);
+            font-family:'DM Sans',sans-serif; font-weight:300;
+            font-size:17px; line-height:1.65;
+            overflow-x:hidden; cursor:none;
+            transition:background 0.4s, color 0.4s;
+        }
+        body::before {
+            content:''; position:fixed; inset:0;
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events:none; z-index:9997; opacity:0.35;
+        }
+
+        /* ── Cursor ── */
+        .cursor { width:8px; height:8px; background:var(--gold); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9999; mix-blend-mode:difference; }
+        .cursor-ring { width:36px; height:36px; border:1px solid rgba(201,169,110,0.5); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:9998; transition:width 0.3s, height 0.3s, border-color 0.3s; }
+
+        /* ═══════════════════════════════════
+           NAVBAR
+        ═══════════════════════════════════ */
+        .navbar {
+            position:fixed; top:0; left:0; right:0; z-index:100;
+            display:flex; align-items:center; justify-content:space-between;
+            padding:1.5rem 4rem;
+            border-bottom:1px solid var(--border);
+            backdrop-filter:blur(20px);
+            background:var(--ink-nav);
+            transition:background 0.4s, border-color 0.4s;
+        }
+        .logo { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; }
+        nav { display:flex; align-items:center; gap:2.5rem; }
+        nav a { color:var(--nav-link); text-decoration:none; font-size:0.82rem; letter-spacing:0.12em; text-transform:uppercase; transition:color 0.3s; position:relative; cursor:none; }
+        nav a::after { content:''; position:absolute; bottom:-4px; left:0; right:0; height:1px; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform 0.3s; }
+        nav a:hover { color:var(--cream); }
+        nav a:hover::after, nav a.active::after { transform:scaleX(1); }
+        nav a.active { color:var(--gold); }
+        .btn-nav { border:1px solid var(--border) !important; padding:0.5rem 1.4rem; border-radius:100px; color:var(--cream) !important; background:var(--glass); backdrop-filter:blur(10px); }
+        .btn-nav::after { display:none !important; }
+        .btn-nav:hover { background:var(--gold) !important; color:var(--ink) !important; border-color:var(--gold) !important; }
+
+        /* ── Theme Toggle ── */
+        .theme-toggle { display:flex; align-items:center; width:52px; height:28px; background:var(--toggle-track); border:1px solid var(--border); border-radius:100px; cursor:none; position:relative; transition:background 0.35s, border-color 0.35s; flex-shrink:0; }
+        .theme-toggle-thumb { position:absolute; left:4px; width:18px; height:18px; border-radius:50%; background:var(--gold); display:flex; align-items:center; justify-content:center; font-size:0.6rem; transition:transform 0.4s cubic-bezier(0.23,1,0.32,1); pointer-events:none; }
+        [data-theme="light"] .theme-toggle-thumb { transform:translateX(24px); }
+
+        /* ═══════════════════════════════════
+           HERO
+        ═══════════════════════════════════ */
+        .products-hero {
+            padding:10rem 4rem 5rem; max-width:1300px; margin:0 auto;
+            display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:end;
+            animation:fadeUp 1s cubic-bezier(0.23,1,0.32,1) forwards;
+        }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+        .hero-eyebrow {
+            display:inline-flex; align-items:center; gap:0.8rem;
+            font-size:0.8rem; letter-spacing:0.25em; text-transform:uppercase;
+            color:var(--gold); margin-bottom:1.5rem;
+        }
+        .hero-eyebrow span { display:block; width:30px; height:1px; background:var(--gold); }
+
+        .products-hero h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(3.2rem,6vw,5.8rem); font-weight:300; line-height:1.05; }
+        .products-hero h1 em { font-style:italic; color:var(--gold); }
+        .hero-right { border-left:1px solid var(--border); padding-left:3rem; }
+        .hero-right p { font-size:1rem; line-height:1.9; color:var(--text-dim); margin-bottom:1.5rem; }
+        .hero-stats { display:flex; gap:2.5rem; }
+        .hero-stat-num { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; color:var(--gold); display:block; }
+        .hero-stat-label { font-size:0.72rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--text-dimmer); }
+
+        /* ═══════════════════════════════════
+           SECTION SHARED
+        ═══════════════════════════════════ */
+        .section-label { font-size:0.74rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--sage); display:block; margin-bottom:0.8rem; }
+        .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(2.2rem,3vw,3.2rem); font-weight:300; }
+        .section-title em { font-style:italic; color:var(--gold); }
+
+        /* ═══════════════════════════════════
+           PRODUCTS SECTION
+        ═══════════════════════════════════ */
+        .products-section { max-width:1300px; margin:0 auto; padding:0 4rem 8rem; }
+
+        /* Filter bar */
+        .filter-bar { display:flex; align-items:center; border:1px solid var(--border); margin-bottom:4rem; overflow:hidden; }
+        .filter-label { font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-dimmer); padding:1.2rem 2rem; border-right:1px solid var(--border); white-space:nowrap; }
+        .filter-pills { display:flex; flex:1; }
+        .filter-pill { flex:1; text-align:center; padding:1.2rem 1.5rem; font-family:'DM Sans',sans-serif; font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-dim); background:none; border:none; border-right:1px solid var(--border); cursor:none; transition:background 0.3s, color 0.3s; }
+        .filter-pill:last-child { border-right:none; }
+        .filter-pill.active { color:var(--gold); background:rgba(201,169,110,0.07); }
+        .filter-pill:hover:not(.active) { color:var(--cream); background:var(--glass); }
+        .filter-count { display:inline-block; margin-left:0.4rem; font-size:0.65rem; color:var(--sage); opacity:0.7; }
+
+        /* Sort row */
+        .products-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+        .products-count { font-size:0.82rem; color:var(--text-dimmer); letter-spacing:0.06em; }
+        .sort-select { background:var(--sort-bg); border:1px solid var(--border); color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; padding:0.5rem 1rem; cursor:none; appearance:none; outline:none; transition:background 0.3s, color 0.3s; }
+
+        /* ═══════════════════════════════════
+           PRODUCT CARDS
+        ═══════════════════════════════════ */
+        .product-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border:1px solid var(--border); }
+
+        .product-card {
+            background:var(--card-bg);
+            display:flex; flex-direction:column;
+            position:relative; overflow:hidden;
+            transition:background 0.4s; cursor:none;
+        }
+        .product-card::before {
+            content:''; position:absolute; top:0; left:0; right:0;
+            height:2px; background:linear-gradient(to right, transparent, var(--gold), transparent);
+            transform:scaleX(0); transform-origin:center; transition:transform 0.5s; z-index:2;
+        }
+        .product-card:hover { background:var(--card-hover); }
+        .product-card:hover::before { transform:scaleX(1); }
+        .product-card.hidden { display:none; }
+        .product-card.fade-in { animation:cardIn 0.5s cubic-bezier(0.23,1,0.32,1) both; }
+        @keyframes cardIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── Product Image ── */
+        .product-img-wrap { width:100%; height:220px; overflow:hidden; position:relative; flex-shrink:0; }
+        .product-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform 0.7s cubic-bezier(0.23,1,0.32,1), filter 0.5s; filter:saturate(0.75) brightness(0.9); }
+        .product-card:hover .product-img-wrap img { transform:scale(1.06); filter:saturate(1) brightness(0.95); }
+        .product-img-wrap::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, transparent 50%, var(--card-bg) 100%); pointer-events:none; }
+
+        /* ── Card Body ── */
+        .product-body { padding:2.2rem 2.5rem 2.5rem; display:flex; flex-direction:column; flex:1; }
+
+        .product-tag { display:inline-block; margin-bottom:1.2rem; font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; padding:0.3rem 0.8rem; border-radius:100px; border:1px solid; width:fit-content; }
+        .tag-sugarfree { color:var(--sage); border-color:rgba(122,140,110,0.35); }
+        .tag-protein   { color:#a8c4e0; border-color:rgba(168,196,224,0.35); }
+        .tag-vegan     { color:#b8d4a0; border-color:rgba(184,212,160,0.35); }
+
+        .product-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:400; margin-bottom:0.5rem; line-height:1.2; }
+        .product-desc { font-size:0.88rem; color:var(--text-dimmer); line-height:1.75; margin-bottom:auto; }
+        .product-price { font-family:'Cormorant Garamond',serif; font-size:1.9rem; font-weight:300; color:var(--gold); margin:1.4rem 0; }
+        .product-price sup { font-size:0.9rem; vertical-align:super; }
+
+        .btn-cart {
+            width:100%; background:none; border:1px solid var(--border); color:var(--cream);
+            font-family:'DM Sans',sans-serif; font-size:0.78rem; letter-spacing:0.14em; text-transform:uppercase;
+            padding:0.95rem; cursor:none;
+            transition:background 0.3s, border-color 0.3s, color 0.3s;
+        }
+        .btn-cart:hover:not(:disabled) { background:var(--gold); border-color:var(--gold); color:var(--ink); }
+        .btn-cart.added { background:rgba(122,140,110,0.12); border-color:rgba(122,140,110,0.3); color:var(--sage); }
+        .btn-cart.login-required { border-color:rgba(201,169,110,0.4); color:var(--gold); }
+        .btn-cart:disabled { opacity:0.7; cursor:not-allowed; }
+
+        /* ── Cart Badge ── */
+        .cart-badge { position:fixed; bottom:2.5rem; right:2.5rem; z-index:200; background:var(--gold); color:var(--ink); border-radius:100px; padding:1rem 1.8rem; font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; display:flex; align-items:center; gap:0.8rem; transform:translateY(80px); opacity:0; transition:transform 0.5s cubic-bezier(0.23,1,0.32,1), opacity 0.5s; cursor:none; box-shadow:0 10px 40px rgba(201,169,110,0.3); }
+        .cart-badge.show { transform:translateY(0); opacity:1; }
+        .cart-badge-count { width:22px; height:22px; background:var(--ink); color:var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:500; }
+
+        /* ── Toast ── */
+        .toast { position:fixed; top:6rem; right:2rem; z-index:300; background:rgba(13,13,10,0.92); border:1px solid var(--border); backdrop-filter:blur(20px); padding:1rem 1.6rem; font-size:0.82rem; color:var(--cream); opacity:0; transform:translateX(20px); transition:opacity 0.4s, transform 0.4s; pointer-events:none; white-space:nowrap; }
+        .toast.show { opacity:1; transform:translateX(0); }
+        .toast span { color:var(--gold); }
+
+        /* ═══════════════════════════════════
+           RECOMMENDATION
+        ═══════════════════════════════════ */
+        .recommendation-section { padding:6rem 4rem 8rem; border-top:1px solid var(--border); }
+        .rec-inner { max-width:1300px; margin:0 auto; }
+        .rec-header { display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:3rem; }
+
+        .recommendation-box { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+        .rec-card { border:1px solid var(--border); background:var(--glass); position:relative; overflow:hidden; transition:border-color 0.4s, background 0.4s, transform 0.4s cubic-bezier(0.23,1,0.32,1); cursor:none; }
+        .rec-card::before { content:''; position:absolute; inset:0; background:radial-gradient(circle at 50% 0%, rgba(201,169,110,0.07), transparent 70%); opacity:0; transition:opacity 0.4s; }
+        .rec-card:hover { border-color:rgba(201,169,110,0.45); background:var(--card-hover); transform:translateY(-6px); }
+        .rec-card:hover::before { opacity:1; }
+
+        .rec-img-wrap { width:100%; height:160px; overflow:hidden; position:relative; }
+        .rec-img-wrap img { width:100%; height:100%; object-fit:cover; transition:transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.4s; filter:saturate(0.7) brightness(0.85); }
+        .rec-card:hover .rec-img-wrap img { transform:scale(1.07); filter:saturate(0.9) brightness(0.9); }
+        .rec-img-wrap::after { content:''; position:absolute; inset:0; background:linear-gradient(to bottom, transparent 50%, var(--card-bg) 100%); pointer-events:none; }
+
+        .rec-body { padding:1.8rem 2rem 2rem; }
+        .rec-tag { font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--sage); margin-bottom:0.8rem; display:block; }
+        .rec-card h3 { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:400; margin-bottom:0.4rem; }
+        .rec-card p { font-size:0.85rem; color:var(--text-dimmer); margin-bottom:1.2rem; }
+        .rec-footer { display:flex; justify-content:space-between; align-items:center; }
+        .rec-price { font-family:'Cormorant Garamond',serif; font-size:1.5rem; color:var(--gold); }
+        .rec-empty { font-family:'Cormorant Garamond',serif; font-size:1.2rem; font-style:italic; color:var(--text-dimmer); opacity:0.5; grid-column:1/-1; text-align:center; padding:3rem; }
+
+        /* ── Reveal ── */
+        .reveal { opacity:0; transform:translateY(24px); transition:opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1); }
+        .reveal.visible { opacity:1; transform:translateY(0); }
+
+        /* ── Footer ── */
+        footer { padding:3rem 4rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .footer-logo { font-family:'Cormorant Garamond',serif; font-size:1.3rem; font-weight:300; letter-spacing:0.15em; text-transform:uppercase; color:var(--gold); }
+        .footer-tagline { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.95rem; color:var(--text-dim); }
+        .footer-copy { font-size:0.76rem; letter-spacing:0.08em; color:var(--text-dimmer); }
+
+        /* ═══════════════════════════════════
+           RESPONSIVE
+        ═══════════════════════════════════ */
+        @media (max-width:1000px) {
+            .products-hero { grid-template-columns:1fr; gap:2rem; padding-top:8rem; }
+            .hero-right { border-left:none; border-top:1px solid var(--border); padding-left:0; padding-top:2rem; }
+            .product-grid { grid-template-columns:1fr 1fr; }
+            .recommendation-box { grid-template-columns:1fr 1fr; }
+        }
+        @media (max-width:700px) {
+            .navbar { padding:1.2rem 2rem; }
+            nav a:not(.btn-nav) { display:none; }
+            .theme-toggle { display:flex !important; }
+            .products-hero, .products-section, .recommendation-section { padding-left:2rem; padding-right:2rem; }
+            .product-grid { grid-template-columns:1fr; }
+            .filter-pills { flex-wrap:wrap; }
+            .recommendation-box { grid-template-columns:1fr; }
+            footer { flex-direction:column; gap:1rem; text-align:center; padding:2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="toast" id="toast">Added <span id="toastName"></span> to cart</div>
+<div class="cart-badge" id="cartBadge">
+    <span>My Cart</span>
+    <span class="cart-badge-count" id="cartCount">0</span>
+</div>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">OneSip</div>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="about.html">Why OneSip?</a>
+        <a href="products.html" class="btn-nav active">Products</a>
+        <a href="subscription.html">Subscription</a>
+        <a href="cart.html">Cart</a>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+            <span class="theme-toggle-thumb" id="toggleThumb"></span>
+        </button>
+        <a href="login.html" class="btn-nav" id="authNavLink">Login</a>
+    </nav>
+</header>
+
+<!-- HERO -->
+<div class="products-hero">
+    <div class="hero-left">
+        <div class="hero-eyebrow">
+            <span></span>The Collection<span></span>
+        </div>
+        <h1>Our Beverage<br><em>Collection</em></h1>
+    </div>
+    <div class="hero-right">
+        <p>Discover premium hydration options curated for your lifestyle — from sugar-free teas to high-protein shakes, each product is chosen for purity and purpose.</p>
+        <div class="hero-stats">
+            <div><span class="hero-stat-num">6+</span><span class="hero-stat-label">Products</span></div>
+            <div><span class="hero-stat-num">3</span><span class="hero-stat-label">Categories</span></div>
+            <div><span class="hero-stat-num">Free</span><span class="hero-stat-label">Shipping ₹499+</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- PRODUCTS SECTION -->
+<section class="products-section">
+
+    <div class="filter-bar reveal">
+        <span class="filter-label">Filter by</span>
+        <div class="filter-pills">
+            <button class="filter-pill active" data-filter="all" onclick="filterProducts('all',this)">All Products <span class="filter-count">6</span></button>
+            <button class="filter-pill" data-filter="sugarfree" onclick="filterProducts('sugarfree',this)">Sugar-Free <span class="filter-count">2</span></button>
+            <button class="filter-pill" data-filter="protein" onclick="filterProducts('protein',this)">Protein-Rich <span class="filter-count">2</span></button>
+            <button class="filter-pill" data-filter="vegan" onclick="filterProducts('vegan',this)">Vegan <span class="filter-count">2</span></button>
+        </div>
+    </div>
+
+    <div class="products-meta reveal">
+        <span class="products-count" id="productsCount">Showing 6 products</span>
+        <select class="sort-select" onchange="sortProducts(this.value)">
+            <option value="default">Sort: Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+        </select>
+    </div>
+
+    <div class="product-grid" id="productGrid">
+
+        <div class="product-card fade-in" data-type="sugarfree" data-price="250" style="animation-delay:0s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80&auto=format&fit=crop" alt="Organic Green Tea" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-sugarfree">Sugar-Free</span>
+                <h3>Organic Green Tea</h3>
+                <p class="product-desc">Premium hand-picked leaves · 250ml · Zero sugar · Antioxidant-rich</p>
+                <div class="product-price"><sup>₹</sup>250</div>
+                <button class="btn-cart" onclick="addToCart('Organic Green Tea',250,this)">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card fade-in" data-type="protein" data-price="450" style="animation-delay:0.07s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1622484212850-eb596d769edc?w=600&q=80&auto=format&fit=crop" alt="Protein Power Shake" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-protein">Protein-Rich</span>
+                <h3>Protein Power Shake</h3>
+                <p class="product-desc">Whey isolate blend · 500ml · 30g protein · Low carb</p>
+                <div class="product-price"><sup>₹</sup>450</div>
+                <button class="btn-cart" onclick="addToCart('Protein Power Shake',450,this)">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card fade-in" data-type="vegan" data-price="180" style="animation-delay:0.14s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1600718374662-0483d2b9da44?w=600&q=80&auto=format&fit=crop" alt="Cold Pressed Detox Juice" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-vegan">Vegan</span>
+                <h3>Cold Pressed Detox Juice</h3>
+                <p class="product-desc">Raw pressed · 350ml · No preservatives · Gut-cleansing blend</p>
+                <div class="product-price"><sup>₹</sup>180</div>
+                <button class="btn-cart" onclick="addToCart('Cold Pressed Detox Juice',180,this)">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card fade-in" data-type="sugarfree" data-price="300" style="animation-delay:0.21s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80&auto=format&fit=crop" alt="Premium Black Coffee" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-sugarfree">Sugar-Free</span>
+                <h3>Premium Black Coffee</h3>
+                <p class="product-desc">Single origin · 300ml · Cold brewed · Zero additives</p>
+                <div class="product-price"><sup>₹</sup>300</div>
+                <button class="btn-cart" onclick="addToCart('Premium Black Coffee',300,this)">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card fade-in" data-type="vegan" data-price="120" style="animation-delay:0.28s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600&q=80&auto=format&fit=crop" alt="Coconut Water" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-vegan">Vegan</span>
+                <h3>Coconut Water</h3>
+                <p class="product-desc">100% natural · 330ml · Electrolyte-rich · Direct source</p>
+                <div class="product-price"><sup>₹</sup>120</div>
+                <button class="btn-cart" onclick="addToCart('Coconut Water',120,this)">Add to Cart</button>
+            </div>
+        </div>
+
+        <div class="product-card fade-in" data-type="protein" data-price="520" style="animation-delay:0.35s">
+            <div class="product-img-wrap">
+                <img src="https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&q=80&auto=format&fit=crop" alt="Vegan Protein Blend" loading="lazy">
+            </div>
+            <div class="product-body">
+                <span class="product-tag tag-protein">Protein-Rich</span>
+                <h3>Vegan Protein Blend</h3>
+                <p class="product-desc">Pea & rice protein · 500ml · 28g protein · Dairy-free</p>
+                <div class="product-price"><sup>₹</sup>520</div>
+                <button class="btn-cart" onclick="addToCart('Vegan Protein Blend',520,this)">Add to Cart</button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- RECOMMENDATION -->
+<section class="recommendation-section">
+    <div class="rec-inner">
+        <div class="rec-header reveal">
+            <div>
+                <span class="section-label">Curated for You</span>
+                <h2 class="section-title">Recommended <em>Picks</em></h2>
+            </div>
+        </div>
+        <div class="recommendation-box" id="recommendation">
+            <p class="rec-empty">Add items to cart to receive personalised recommendations.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <span class="footer-logo">OneSip</span>
+    <span class="footer-tagline">Where Health Meets Hydration</span>
+    <span class="footer-copy">© 2026 OneSip. All rights reserved.</span>
+</footer>
+
+<script>
+/* ── Auth Guard ── */
+(function() {
+    try { const s = JSON.parse(localStorage.getItem('onesip_session')); if (s && s.loggedIn) return; } catch {}
+    window.location.href = 'login.html?redirect=products.html';
+})();
+
+/* ── Cursor ── */
+const cur = document.getElementById('cursor'), ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{ mx=e.clientX; my=e.clientY; cur.style.transform=`translate(${mx-4}px,${my-4}px)`; });
+(function anim(){ rx+=(mx-rx-18)*0.12; ry+=(my-ry-18)*0.12; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(anim); })();
+document.addEventListener('mouseover',e=>{ if(e.target.matches('a,button,.product-card,.rec-card')){ ring.style.width='54px'; ring.style.height='54px'; ring.style.borderColor='rgba(201,169,110,0.8)'; }});
+document.addEventListener('mouseout', e=>{ if(e.target.matches('a,button,.product-card,.rec-card')){ ring.style.width='36px'; ring.style.height='36px'; ring.style.borderColor='rgba(201,169,110,0.5)'; }});
+
+/* ── Theme Toggle ── */
+const THEME_KEY='onesip_theme';
+const html=document.documentElement;
+const toggleBtn=document.getElementById('themeToggle');
+const thumb=document.getElementById('toggleThumb');
+const ICONS={dark:'🌙',light:'☀️'};
+function applyTheme(t){ html.setAttribute('data-theme',t); localStorage.setItem(THEME_KEY,t); thumb.textContent=ICONS[t]; }
+const saved=localStorage.getItem(THEME_KEY);
+applyTheme(saved||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
+toggleBtn.addEventListener('click',()=>applyTheme(html.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+/* ── Navbar: swap Login → Profile/Logout when logged in ── */
+function isLoggedIn() {
+    try { const s = JSON.parse(localStorage.getItem('onesip_session')); return !!(s && s.loggedIn); } catch { return false; }
+}
+function updateNavbar() {
+    const link = document.getElementById('authNavLink');
+    if (!link) return;
+    if (isLoggedIn()) {
+        link.href = 'profile.html';
+        link.textContent = 'My Account';
+    }
+}
+updateNavbar();
+
+/* ── Reveal ── */
+const revealObs = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); }),{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+/* ── Product Data ── */
+const allProducts = [
+    { img:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80&auto=format&fit=crop', tag:'Sugar-Free', name:'Organic Green Tea',        desc:'250ml · Zero sugar',      price:250 },
+    { img:'https://images.unsplash.com/photo-1622484212850-eb596d769edc?w=600&q=80&auto=format&fit=crop', tag:'Protein-Rich', name:'Protein Power Shake',  desc:'500ml · 30g protein',     price:450 },
+    { img:'https://images.unsplash.com/photo-1600718374662-0483d2b9da44?w=600&q=80&auto=format&fit=crop', tag:'Vegan',       name:'Cold Pressed Detox Juice',desc:'350ml · Raw pressed',     price:180 },
+    { img:'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600&q=80&auto=format&fit=crop', tag:'Sugar-Free', name:'Premium Black Coffee',    desc:'300ml · Single origin',   price:300 },
+    { img:'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=600&q=80&auto=format&fit=crop', tag:'Vegan',      name:'Coconut Water',           desc:'330ml · Electrolyte-rich', price:120 },
+    { img:'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&q=80&auto=format&fit=crop',   tag:'Protein-Rich', name:'Vegan Protein Blend',    desc:'500ml · 28g protein',     price:520 },
+];
+
+/* ── Cart State ── */
+let cartItems = [], cartCount = 0;
+
+function addToCart(name, price, btn) {
+    cartItems.push({name, price});
+    cartCount++;
+    document.getElementById('cartCount').textContent = cartCount;
+    document.getElementById('cartBadge').classList.add('show');
+
+    if(btn) {
+        btn.textContent = '✓ Added';
+        btn.classList.add('added');
+        setTimeout(()=>{ btn.textContent='Add to Cart'; btn.classList.remove('added'); }, 2000);
+    }
+
+    const toast = document.getElementById('toast');
+    document.getElementById('toastName').textContent = name;
+    toast.classList.add('show');
+    clearTimeout(window._tt);
+    window._tt = setTimeout(()=>toast.classList.remove('show'), 2600);
+
+    updateRecommendations();
+}
+
+function updateRecommendations() {
+    const box = document.getElementById('recommendation');
+    const addedNames = cartItems.map(c=>c.name);
+    const recs = allProducts.filter(p=>!addedNames.includes(p.name)).slice(0,3);
+
+    if(recs.length === 0) {
+        box.innerHTML = '<p class="rec-empty">You\'ve explored our full collection!</p>';
+        return;
+    }
+    box.innerHTML = recs.map((p,i) => `
+        <div class="rec-card" style="animation:recIn 0.6s ${i*0.1}s cubic-bezier(0.23,1,0.32,1) both;">
+            <div class="rec-img-wrap">
+                <img src="${p.img}" alt="${p.name}" loading="lazy">
+            </div>
+            <div class="rec-body">
+                <span class="rec-tag">${p.tag}</span>
+                <h3>${p.name}</h3>
+                <p>${p.desc}</p>
+                <div class="rec-footer">
+                    <span class="rec-price">₹${p.price}</span>
+                    <button class="btn-cart" style="width:auto;padding:0.7rem 1.2rem;" onclick="addToCart('${p.name}',${p.price},this)">Add to Cart</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+/* ── Filter ── */
+function filterProducts(type, btn) {
+    document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    const cards = document.querySelectorAll('#productGrid .product-card');
+    let visible=0;
+    cards.forEach(card=>{
+        const match = type==='all' || card.dataset.type===type;
+        if(match){ card.classList.remove('hidden'); card.style.animationDelay=`${visible*0.07}s`; card.classList.remove('fade-in'); void card.offsetWidth; card.classList.add('fade-in'); visible++; }
+        else card.classList.add('hidden');
+    });
+    document.getElementById('productsCount').textContent = `Showing ${visible} product${visible!==1?'s':''}`;
+}
+
+/* ── Sort ── */
+function sortProducts(val) {
+    const grid = document.getElementById('productGrid');
+    const cards = Array.from(grid.querySelectorAll('.product-card:not(.hidden)'));
+    cards.sort((a,b)=>{ const pa=parseInt(a.dataset.price),pb=parseInt(b.dataset.price); return val==='price-asc'?pa-pb:val==='price-desc'?pb-pa:0; });
+    cards.forEach((c,i)=>{ c.style.animationDelay=`${i*0.07}s`; grid.appendChild(c); c.classList.remove('fade-in'); void c.offsetWidth; c.classList.add('fade-in'); });
+}
+
+/* ── Cart badge click ── */
+document.getElementById('cartBadge').addEventListener('click', () => { window.location.href = 'cart.html'; });
+
+/* Init */
+updateRecommendations();
+const s=document.createElement('style');
+s.textContent='@keyframes recIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}';
+document.head.appendChild(s);
+</script>
+</body>
+</html>
