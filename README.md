@@ -94,8 +94,3 @@ This creates a **data-driven, customer-centric digital ecosystem.**
 
 **Saniya Kadam**  
 
----
-
-## 📜 License
-
-This project is developed for academic purposes.
