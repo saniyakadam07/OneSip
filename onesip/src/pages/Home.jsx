@@ -273,8 +273,8 @@ export default function Home() {
             <strong>Welcome to OneSip</strong>
             <button className="promo-close" onClick={() => setPromoVisible(false)} aria-label="Close promo">×</button>
           </div>
-          <div className="promo-text">Get 20% off your first subscription plan today!</div>
-          <span className="promo-code">CODE: ONESIP20</span>
+          <div className="promo-text">Get 15% off your first subscription plan today!</div>
+          <span className="promo-code">CODE: SIP15</span>
         </aside>
       )}
 

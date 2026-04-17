@@ -8,7 +8,7 @@ import AISommelier from './components/AISommelier';
 // Import your AuthProvider!
 import { AuthProvider } from './context/AuthContext';
 
-// Import all pages including the NEW DrinkLab
+// Import all pages including the NEW DrinkLab, InfoPage, and Support
 import Home from './pages/Home';
 import About from './pages/About';
 import Products from './pages/Products';
@@ -17,7 +17,9 @@ import Cart from './pages/Cart';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Admin from './pages/Admin';
-import DrinkLab from './pages/DrinkLab'; // <--- NEW IMPORT
+import DrinkLab from './pages/DrinkLab';
+import InfoPage from './pages/InfoPage'; // <--- NEW IMPORT
+import Support from './pages/Support';   // <--- NEW IMPORT
 
 export default function App() {
   return (
@@ -58,8 +60,11 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
-            {/* NEW ROUTE FOR PULL MODEL */}
             <Route path="/drink-lab" element={<DrinkLab />} /> 
+            
+            {/* NEW ROUTES FOR DYNAMIC FOOTER & CUSTOMER SUPPORT */}
+            <Route path="/info/:pageId" element={<InfoPage />} />
+            <Route path="/support" element={<Support />} />
           </Routes>
         </main>
 

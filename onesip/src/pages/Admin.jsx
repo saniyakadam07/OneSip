@@ -1,27 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { collection, onSnapshot } from 'firebase/firestore';
-import { useState } from 'react';
 
 // ── SET YOUR OFFICIAL ADMIN EMAIL HERE ──
 const ADMIN_EMAIL = "saniya.ckadam@gmail.com";
 
 export default function Admin() {
-  // ── ALL ORIGINAL LOGIC PRESERVED — NO CHANGES ──
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
   const [metrics, setMetrics] = useState({
     totalOrders: 0,
     totalRevenue: 0,
+    btoRevenue: 0, // NEW: Revenue strictly from the Drink Lab
+    totalEcoImpact: 0, // NEW: Platform-wide CO2 offset
     topProducts: [],
     payments: { upi: 0, card: 0, cod: 0 },
     success: { rate: 0, count: 0 },
-    alerts: [],
+    productAlerts: [],
+    labAlerts: [], // NEW: Low stock alerts for raw ingredients
     totalCustomers: 0,
-    inventoryValuation: 0,
+    inventoryValuation: 0, // Standard finished goods
+    labValuation: 0, // NEW: Value of raw materials
     avgOrderValue: 0,
     activeSubscriptions: 0,
     monthlyRecurringRevenue: 0,
@@ -38,26 +40,36 @@ export default function Admin() {
   useEffect(() => {
     if (!currentUser || currentUser.email !== ADMIN_EMAIL) return;
 
+    // 1. ORDERS LISTENER
     const unsubscribeOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
       const orders = snapshot.docs.map(doc => doc.data());
       let upiCount = 0, cardCount = 0, codCount = 0;
-      let totalRev = 0;
+      let totalRev = 0, btoRev = 0, totalEco = 0;
       let productCount = {};
       let successCount = 0;
       let customerEmails = new Set();
 
       orders.forEach(order => {
         totalRev += order.totalAmount || 0;
+        totalEco += order.ecoImpactGenerated || 0; // Tallying the Eco Score
         if (order.userEmail) customerEmails.add(order.userEmail);
+        
         if (order.items) {
           order.items.forEach(item => {
-            productCount[item.name] = (productCount[item.name] || 0) + (item.qty || 1);
+            const qty = item.qty || item.quantity || 1;
+            // Separate BTO revenue from standard revenue
+            if (item.isBTO) {
+              btoRev += (item.price * qty);
+            } else {
+              productCount[item.name] = (productCount[item.name] || 0) + qty;
+            }
           });
         }
+        
         if (order.paymentMethod === 'UPI') upiCount++;
-        if (order.paymentMethod === 'Card') cardCount++;
+        if (order.paymentMethod === 'Card' || !order.paymentMethod) cardCount++; // Defaulting Razorpay to Card for visual
         if (order.paymentMethod === 'COD') codCount++;
-        if (order.paymentStatus === 'Success') successCount++;
+        if (order.paymentStatus === 'Success' || order.paymentStatus === 'Paid') successCount++;
       });
 
       const sortedProducts = Object.entries(productCount)
@@ -70,6 +82,8 @@ export default function Admin() {
         ...prev,
         totalOrders: orders.length,
         totalRevenue: totalRev,
+        btoRevenue: btoRev,
+        totalEcoImpact: totalEco,
         totalCustomers: customerEmails.size,
         avgOrderValue: orders.length > 0 ? totalRev / orders.length : 0,
         topProducts: sortedProducts,
@@ -81,17 +95,31 @@ export default function Admin() {
       }));
     });
 
+    // 2. STANDARD PRODUCTS LISTENER
     const unsubscribeProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
       const lowStockAlerts = [];
       let totalValuation = 0;
       snapshot.forEach(doc => {
         const product = doc.data();
-        totalValuation += (product.stockQuantity * product.price);
-        if (product.stockQuantity <= 10) lowStockAlerts.push({ product: product.name, stock: product.stockQuantity });
+        totalValuation += ((product.stockQuantity || 0) * (product.price || 0));
+        if (product.stockQuantity <= 10) lowStockAlerts.push({ name: product.name, stock: product.stockQuantity, type: 'Finished Good' });
       });
-      setMetrics(prev => ({ ...prev, alerts: lowStockAlerts, inventoryValuation: totalValuation }));
+      setMetrics(prev => ({ ...prev, productAlerts: lowStockAlerts, inventoryValuation: totalValuation }));
     });
 
+    // 3. NEW: LAB INVENTORY LISTENER (Raw Materials)
+    const unsubscribeLab = onSnapshot(collection(db, 'lab_inventory'), (snapshot) => {
+      const lowStockAlerts = [];
+      let totalValuation = 0;
+      snapshot.forEach(doc => {
+        const item = doc.data();
+        totalValuation += ((item.stock || 0) * (item.price || 0));
+        if (item.stock <= 15) lowStockAlerts.push({ name: item.name, stock: item.stock, type: 'Raw Material' });
+      });
+      setMetrics(prev => ({ ...prev, labAlerts: lowStockAlerts, labValuation: totalValuation }));
+    });
+
+    // 4. SUBSCRIPTIONS LISTENER
     const unsubscribeSubscriptions = onSnapshot(collection(db, 'subscriptions'), (snapshot) => {
       let activeCount = 0, mrr = 0, teaCount = 0, fitnessCount = 0;
       snapshot.forEach(doc => {
@@ -107,7 +135,7 @@ export default function Admin() {
       setLoading(false);
     });
 
-    return () => { unsubscribeOrders(); unsubscribeProducts(); unsubscribeSubscriptions(); };
+    return () => { unsubscribeOrders(); unsubscribeProducts(); unsubscribeLab(); unsubscribeSubscriptions(); };
   }, [currentUser]);
 
   useEffect(() => {
@@ -136,6 +164,9 @@ export default function Admin() {
   const upiPct   = Math.round((metrics.payments.upi / payTotal) * 100);
   const cardPct  = Math.round((metrics.payments.card / payTotal) * 100);
   const codPct   = Math.round((metrics.payments.cod / payTotal) * 100);
+  
+  // Combine all alerts
+  const allAlerts = [...metrics.productAlerts, ...metrics.labAlerts].sort((a, b) => a.stock - b.stock);
 
   return (
     <>
@@ -241,6 +272,7 @@ export default function Admin() {
         .alert-icon { font-size:1.1rem; flex-shrink:0; }
         .alert-text { flex:1; }
         .alert-badge { font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; border:1px solid var(--alert-color,#ffb3b3); padding:0.2rem 0.6rem; border-radius:100px; opacity:0.7; flex-shrink:0; }
+        .alert-type-badge { font-size:0.6rem; background: rgba(255,255,255,0.1); padding:2px 6px; border-radius:4px; margin-right: 10px; color: var(--cream);}
 
         /* REVEAL */
         .reveal { opacity:0; transform:translateY(30px); transition:opacity 0.9s cubic-bezier(0.23,1,0.32,1),transform 0.9s cubic-bezier(0.23,1,0.32,1); }
@@ -278,9 +310,10 @@ export default function Admin() {
             <span className="stat-label">Total Revenue</span>
             <span className="stat-num">₹{metrics.totalRevenue.toLocaleString('en-IN')}</span>
           </div>
+          {/* NEW: Platform Eco Impact */}
           <div className="stat-card reveal reveal-delay-2">
-            <span className="stat-label">Active Subscriptions</span>
-            <span className="stat-num">{metrics.activeSubscriptions}</span>
+            <span className="stat-label">Platform Eco Impact</span>
+            <span className="stat-num" style={{color: 'var(--sage)'}}>{metrics.totalEcoImpact}g</span>
           </div>
         </div>
 
@@ -300,9 +333,11 @@ export default function Admin() {
               <span className="int-type">ERP Module</span>
               <h3 className="int-title">Resource <em>Planning</em></h3>
             </div>
-            <div className="int-row"><span className="int-label">Inventory Valuation</span><span className="int-val">₹{metrics.inventoryValuation.toLocaleString('en-IN')}</span></div>
-            <div className="int-row"><span className="int-label">Supply Chain Status</span><span className="int-val" style={{color:'var(--sage)'}}>Optimized</span></div>
-            <div className="int-row"><span className="int-label">Asset Utilization</span><span className="int-val">82%</span></div>
+            <div className="int-row"><span className="int-label">Finished Goods Value</span><span className="int-val">₹{metrics.inventoryValuation.toLocaleString('en-IN')}</span></div>
+            {/* NEW: Raw Material Tracking for Drink Lab */}
+            <div className="int-row"><span className="int-label">Lab Raw Materials Value</span><span className="int-val" style={{color: 'var(--gold)'}}>₹{metrics.labValuation.toLocaleString('en-IN')}</span></div>
+            {/* NEW: BTO Revenue Tracking */}
+            <div className="int-row"><span className="int-label">BTO (Custom) Revenue</span><span className="int-val" style={{color:'var(--sage)'}}>₹{metrics.btoRevenue.toLocaleString('en-IN')}</span></div>
           </div>
         </div>
 
@@ -311,7 +346,7 @@ export default function Admin() {
           <div className="section-header">
             <div>
               <span className="section-label">Performance</span>
-              <h2 className="section-title">Top Selling <em>Products</em></h2>
+              <h2 className="section-title">Top Selling <em>Standard Retail</em></h2>
             </div>
           </div>
           {metrics.topProducts.map((product, index) => {
@@ -334,46 +369,6 @@ export default function Admin() {
               </div>
             );
           })}
-        </div>
-
-        {/* Subscription Insights */}
-        <div className="admin-section reveal">
-          <div className="section-header">
-            <div>
-              <span className="section-label">Recurring Revenue Model</span>
-              <h2 className="section-title">Subscription <em>Insights</em></h2>
-            </div>
-          </div>
-          <div className="data-box reveal reveal-delay-1">
-            <div className="data-box-content">
-              <h4>Monthly Recurring Revenue (MRR)</h4>
-              <p>Predictable monthly income generated from all active automated subscriptions.</p>
-            </div>
-            <div className="data-box-meta">
-              <span className="meta-num">₹{metrics.monthlyRecurringRevenue.toLocaleString('en-IN')}</span>
-              <span className="meta-label">Current MRR</span>
-            </div>
-          </div>
-          <div className="data-box reveal reveal-delay-2">
-            <div className="data-box-content">
-              <h4>Tea & Coffee Premium</h4>
-              <p>Total active subscribers for our bestselling morning ritual plan.</p>
-            </div>
-            <div className="data-box-meta">
-              <span className="meta-num">{metrics.teaPlanCount}</span>
-              <span className="meta-label">Active Users</span>
-            </div>
-          </div>
-          <div className="data-box reveal reveal-delay-3">
-            <div className="data-box-content">
-              <h4>Fitness Protein Pro</h4>
-              <p>Total active subscribers for the high-yield athletic performance plan.</p>
-            </div>
-            <div className="data-box-meta">
-              <span className="meta-num">{metrics.fitnessPlanCount}</span>
-              <span className="meta-label">Active Users</span>
-            </div>
-          </div>
         </div>
 
         {/* Payment Insights — visual bars per method */}
@@ -403,13 +398,13 @@ export default function Admin() {
             <div className="pay-method-card" style={{ borderLeft:'1px solid var(--border)' }}>
               <div className="pay-method-header">
                 <span className="pay-method-icon">💳</span>
-                <span className="pay-method-name">Card Payments</span>
+                <span className="pay-method-name">Card / Digital Gateway</span>
               </div>
               <div className="pay-method-num card-col">{metrics.payments.card}</div>
               <div className="pay-method-bar-track">
                 <div className="pay-method-bar-fill pay-card-fill" style={{ width:`${cardPct}%` }}></div>
               </div>
-              <div className="pay-method-pct">{cardPct}% of total · Visa · Mastercard · RuPay</div>
+              <div className="pay-method-pct">{cardPct}% of total · Razorpay · Visa · RuPay</div>
             </div>
           </div>
 
@@ -443,6 +438,36 @@ export default function Admin() {
           </div>
         </div>
 
+        {/* Subscription Insights */}
+        <div className="admin-section reveal">
+          <div className="section-header">
+            <div>
+              <span className="section-label">Recurring Revenue Model</span>
+              <h2 className="section-title">Subscription <em>Insights</em></h2>
+            </div>
+          </div>
+          <div className="data-box reveal reveal-delay-1">
+            <div className="data-box-content">
+              <h4>Monthly Recurring Revenue (MRR)</h4>
+              <p>Predictable monthly income generated from all active automated subscriptions.</p>
+            </div>
+            <div className="data-box-meta">
+              <span className="meta-num">₹{metrics.monthlyRecurringRevenue.toLocaleString('en-IN')}</span>
+              <span className="meta-label">Current MRR</span>
+            </div>
+          </div>
+          <div className="data-box reveal reveal-delay-2">
+            <div className="data-box-content">
+              <h4>Tea & Coffee Premium</h4>
+              <p>Total active subscribers for our bestselling morning ritual plan.</p>
+            </div>
+            <div className="data-box-meta">
+              <span className="meta-num">{metrics.teaPlanCount}</span>
+              <span className="meta-label">Active Users</span>
+            </div>
+          </div>
+        </div>
+
         {/* Low Stock Alerts */}
         <div className="admin-section reveal">
           <div className="section-header">
@@ -452,18 +477,21 @@ export default function Admin() {
             </div>
           </div>
           <ul className="alert-list">
-            {metrics.alerts.length > 0 ? (
-              metrics.alerts.map((alert, idx) => (
+            {allAlerts.length > 0 ? (
+              allAlerts.map((alert, idx) => (
                 <li key={idx}>
                   <span className="alert-icon">⚠</span>
-                  <span className="alert-text">{alert.product} — Only {alert.stock} unit{alert.stock !== 1 ? 's' : ''} left</span>
+                  <span className="alert-text">
+                    <span className="alert-type-badge">{alert.type}</span>
+                    {alert.name} — Only {alert.stock} unit{alert.stock !== 1 ? 's' : ''} left
+                  </span>
                   <span className="alert-badge">{alert.stock <= 5 ? 'Critical' : 'Reorder Now'}</span>
                 </li>
               ))
             ) : (
               <li>
                 <span className="alert-icon">✓</span>
-                <span className="alert-text">All products sufficiently stocked</span>
+                <span className="alert-text">All products and raw materials sufficiently stocked</span>
                 <span className="alert-badge" style={{ color:'var(--sage)', borderColor:'var(--sage)' }}>Stable</span>
               </li>
             )}

@@ -151,9 +151,10 @@ export default function Footer() {
           <nav aria-label="Support Menu">
             <span className="footer-col-title">Support</span>
             <ul className="footer-nav">
-              <li><a href="#faq">FAQ</a></li>
-              <li><a href="#shipping">Shipping & Returns</a></li>
-              <li><a href="#contact">Contact Us</a></li>
+              {/* Converted to React Router Links */}
+              <li><Link to="/info/faq">FAQ</Link></li>
+              <li><Link to="/info/shipping">Shipping & Returns</Link></li>
+              <li><Link to="/info/contact">Contact Us</Link></li>
               <li><Link to="/login">Member Portal</Link></li>
             </ul>
           </nav>
@@ -161,9 +162,10 @@ export default function Footer() {
           <nav aria-label="Legal Menu">
             <span className="footer-col-title">Legal</span>
             <ul className="footer-nav">
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#terms">Terms of Service</a></li>
-              <li><a href="#refund">Refund Policy</a></li>
+              {/* Converted to React Router Links */}
+              <li><Link to="/info/privacy">Privacy Policy</Link></li>
+              <li><Link to="/info/terms">Terms of Service</Link></li>
+              <li><Link to="/info/refund">Refund Policy</Link></li>
             </ul>
           </nav>
 
@@ -172,9 +174,9 @@ export default function Footer() {
         <div className="footer-bottom">
           <span className="footer-copy">© {new Date().getFullYear()} OneSip. All rights reserved.</span>
           <div className="footer-socials" aria-label="Social Media Links">
-            <a href="#instagram" className="social-link">Instagram</a>
-            <a href="#twitter" className="social-link">Twitter</a>
-            <a href="#linkedin" className="social-link">LinkedIn</a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" className="social-link">Instagram</a>
+            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="social-link">Twitter</a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="social-link">LinkedIn</a>
           </div>
         </div>
       </div>

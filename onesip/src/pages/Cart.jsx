@@ -6,9 +6,13 @@ import { db } from '../firebase/config';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function Cart() {
-  const { cart, setCart, cartCount } = useCart();
+  // Pulled clearCart in case your context requires it to clear localStorage
+  const { cart, setCart, cartCount, clearCart } = useCart();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+
+  // ── RAZORPAY CONFIGURATION ──
+  const RAZORPAY_KEY = 'rzp_test_SUK9ik1lwRb6xa'; // <-- Your Test Key
 
   const [checkoutStep, setCheckoutStep] = useState('cart'); // cart | address | confirm
   const [address, setAddress] = useState({ name: '', phone: '', line1: '', city: '', pin: '' });
@@ -21,9 +25,9 @@ export default function Cart() {
 
   const VALID_PROMO = 'SIP15';
   const PROMO_DISCOUNT = 0.15;
+  const GST_RATE = 0.18; // 18% Standard GST for supplements/beverages
 
   // ── HELPER TO HANDLE VARIABLE NAMING ──
-  // Secures the data whether it comes from standard shop (qty) or Drink Lab (quantity)
   const getQty = (item) => item.qty !== undefined ? item.qty : (item.quantity || 1);
 
   // ── ECO-IMPACT LOGIC ──
@@ -47,10 +51,28 @@ export default function Cart() {
 
   const removeItem = (name) => setCart(prev => prev.filter(item => item.name !== name));
 
+  // ── NEW: CLEAR CART LOGIC ──
+  const handleEmptyCart = () => {
+    if (clearCart) {
+      clearCart();
+    } else {
+      setCart([]);
+    }
+  };
+
+  // ── REAL-WORLD E-COMMERCE MATH ──
   const subtotal = cart.reduce((sum, item) => sum + item.price * getQty(item), 0);
   const discount = promoApplied ? Math.round(subtotal * PROMO_DISCOUNT) : 0;
-  const shipping = subtotal >= 499 || subtotal === 0 ? 0 : 49;
-  const total = subtotal - discount + shipping;
+  
+  // Tax is calculated on the amount AFTER the discount is applied
+  const taxableAmount = subtotal - discount;
+  const taxAmount = Math.round(taxableAmount * GST_RATE);
+  
+  // Shipping logic (Free if taxable amount is over ₹499)
+  const shipping = taxableAmount >= 499 || taxableAmount === 0 ? 0 : 49;
+  
+  // Final Total
+  const total = taxableAmount + taxAmount + shipping;
 
   const handlePromo = () => {
     if (promoInput.trim().toUpperCase() === VALID_PROMO) {
@@ -61,39 +83,101 @@ export default function Cart() {
     }
   };
 
+  // ── DYNAMICALLY LOAD RAZORPAY SCRIPT ──
+  const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => { resolve(true); };
+      script.onerror = () => { resolve(false); };
+      document.body.appendChild(script);
+    });
+  };
+
+  // ── MAIN CHECKOUT FUNCTION ──
   const handlePlaceOrder = async () => {
     if (!currentUser) { navigate('/login?redirect=/cart'); return; }
+    
     setPlacingOrder(true);
-    try {
-      const docRef = await addDoc(collection(db, 'orders'), {
-        userId: currentUser.uid,
-        userEmail: currentUser.email,
-        // Map items safely to include BTO Lab details if they exist
-        items: cart.map(i => ({ 
-          name: i.name, 
-          qty: getQty(i), 
-          price: i.price,
-          isBTO: i.isBTO || false,
-          recipe: i.recipe || null,
-          volume: i.volume || null
-        })),
-        shippingAddress: address,
-        subtotal, discount, shipping, totalAmount: total,
-        promoCode: promoApplied ? VALID_PROMO : null,
-        paymentStatus: 'Success',
-        ecoImpactGenerated: ecoImpact, 
-        createdAt: new Date().toISOString(),
-      });
-      
-      setOrderId(docRef.id);
-      setCart([]);
-      setOrderPlaced(true);
-      setCheckoutStep('confirm');
-    } catch (err) {
-      console.error('Order failed:', err);
-    } finally {
+
+    // 1. Load Razorpay SDK
+    const res = await loadRazorpayScript();
+    if (!res) {
+      alert("Razorpay SDK failed to load. Are you online?");
       setPlacingOrder(false);
+      return;
     }
+
+    // 2. Set up Razorpay Options
+    const options = {
+      key: RAZORPAY_KEY, 
+      amount: total * 100, // Amount is in paise (multiply by 100)
+      currency: "INR",
+      name: "OneSip Wellness",
+      description: "Premium Beverage Order",
+      image: "https://cdn-icons-png.flaticon.com/512/3142/3142765.png", // Optional logo
+      handler: async function (response) {
+        // 3. THIS RUNS ONLY IF PAYMENT IS SUCCESSFUL
+        try {
+          const docRef = await addDoc(collection(db, 'orders'), {
+            userId: currentUser.uid,
+            userEmail: currentUser.email,
+            items: cart.map(i => ({ 
+              name: i.name, 
+              qty: getQty(i), 
+              price: i.price,
+              isBTO: i.isBTO || false,
+              recipe: i.recipe || null,
+              volume: i.volume || null
+            })),
+            shippingAddress: address,
+            // Saving the full financial breakdown to Firebase
+            subtotal, 
+            discount, 
+            taxAmount, 
+            shipping, 
+            totalAmount: total,
+            promoCode: promoApplied ? VALID_PROMO : null,
+            paymentStatus: 'Paid', 
+            razorpayPaymentId: response.razorpay_payment_id, 
+            ecoImpactGenerated: ecoImpact, 
+            createdAt: new Date().toISOString(),
+          });
+          
+          setOrderId(docRef.id);
+          
+          // Bulletproof clearing of the cart upon successful order
+          handleEmptyCart();
+          
+          setOrderPlaced(true);
+          setCheckoutStep('confirm');
+        } catch (err) {
+          console.error('Firebase save failed:', err);
+          alert("Payment successful, but order saving failed. Contact support.");
+        } finally {
+          setPlacingOrder(false);
+        }
+      },
+      prefill: {
+        name: address.name,
+        email: currentUser.email,
+        contact: address.phone
+      },
+      theme: {
+        color: "#c9a96e" 
+      }
+    };
+
+    // 4. Open the Razorpay Modal
+    const paymentObject = new window.Razorpay(options);
+    
+    // Handle modal closure by user
+    paymentObject.on('payment.failed', function (response){
+      alert(`Payment Failed: ${response.error.description}`);
+      setPlacingOrder(false);
+    });
+
+    paymentObject.open();
   };
 
   return (
@@ -248,6 +332,17 @@ export default function Cart() {
           cursor: pointer; transition: color 0.3s;
         }
         .remove-btn:hover { color: rgba(201,112,112,0.7); }
+
+        /* Clear Cart Button */
+        .btn-clear-cart {
+          background: none; border: none;
+          color: rgba(201,112,112,0.7);
+          font-size: 0.75rem; letter-spacing: 0.1em;
+          text-transform: uppercase; cursor: pointer;
+          transition: color 0.3s;
+          padding: 0; text-decoration: underline;
+        }
+        .btn-clear-cart:hover { color: rgba(201,112,112,1); }
 
         /* EMPTY STATE */
         .cart-empty {
@@ -589,6 +684,12 @@ export default function Cart() {
                   </div>
                 ) : (
                   <div className="cart-items">
+                    {/* Empty Cart Button */}
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+                      <button className="btn-clear-cart" onClick={handleEmptyCart}>
+                        Empty Cart
+                      </button>
+                    </div>
                     {cart.map((item, idx) => (
                       <div className="cart-item" key={item.id || `${item.name}-${idx}`}>
                         
@@ -682,7 +783,7 @@ export default function Cart() {
                       onClick={handlePlaceOrder}
                       disabled={placingOrder || !address.name || !address.line1 || !address.city || !address.pin}
                     >
-                      {placingOrder ? 'Placing Order…' : 'Place Order →'}
+                      {placingOrder ? 'Connecting to Payment...' : 'Place Order →'}
                     </button>
                   </div>
                 </div>
@@ -703,22 +804,32 @@ export default function Cart() {
                       <span className="s-val">₹{(item.price * getQty(item)).toLocaleString('en-IN')}</span>
                     </div>
                   ))}
-                  <div className="summary-row">
+                  
+                  <div className="summary-row" style={{ marginTop: '1rem', borderTop: '1px solid rgba(245,240,232,0.05)', paddingTop: '1rem' }}>
                     <span className="s-label">Subtotal</span>
                     <span className="s-val">₹{subtotal.toLocaleString('en-IN')}</span>
                   </div>
+                  
                   {promoApplied && (
                     <div className="summary-row">
                       <span className="s-label">Promo (SIP15)</span>
                       <span className="s-val green">−₹{discount.toLocaleString('en-IN')}</span>
                     </div>
                   )}
+
+                  {/* ── REAL-WORLD TAX ROW ── */}
                   <div className="summary-row">
-                    <span className="s-label">Shipping</span>
+                    <span className="s-label">Estimated Tax (18% GST)</span>
+                    <span className="s-val">₹{taxAmount.toLocaleString('en-IN')}</span>
+                  </div>
+
+                  <div className="summary-row">
+                    <span className="s-label">Shipping & Handling</span>
                     {shipping === 0
                       ? <span className="s-val free">Free</span>
                       : <span className="s-val">₹{shipping}</span>}
                   </div>
+                  
                   <div className="summary-row total">
                     <span className="s-label">Total Amount</span>
                     <span className="s-val">₹{total.toLocaleString('en-IN')}</span>
@@ -763,7 +874,7 @@ export default function Cart() {
                     </button>
                   )}
                   <p className="summary-note">
-                    {shipping > 0 ? `Add ₹${(499 - subtotal).toLocaleString('en-IN')} more for free shipping` : '✓ Free shipping unlocked'}
+                    {shipping > 0 ? `Add ₹${(499 - taxableAmount).toLocaleString('en-IN')} more for free shipping` : '✓ Free shipping unlocked'}
                   </p>
                 </div>
               </div>

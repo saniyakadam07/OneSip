@@ -46,12 +46,12 @@ export default function AISommelier() {
       const prompt = `You are an expert E-Business CRM Specialist & Wellness Coach for "OneSip", a premium beverage brand.
       Customer: ${userName}. Cart: ${cartItems}.
       Products: Organic Green Tea, Protein Power Shake, Cold Pressed Detox Juice, Premium Black Coffee, Coconut Water, Kombucha Ginger, Ashwagandha Latte, Matcha Cold Brew, Turmeric Golden Milk, Electrolyte Sports Drink.
-      Based on their mood or goal, suggest 1 specific drink with a clear wellness benefit. Be warm, expert, and concise. Max 3 sentences. Mention code "ZEN10".
+      Based on their mood or goal, suggest 1 specific drink with a clear wellness benefit. Be warm, expert, and concise. Max 3 sentences. Mention promo code "SIP15" for 15% off.
       Customer says: "${query}"`;
       const result = await model.generateContent(prompt);
       setChatHistory([...newHistory, { role: 'model', text: result.response.text() }]);
     } catch (error) {
-      setChatHistory([...newHistory, { role: 'model', text: "My wellness sensors are recalibrating — try our Organic Green Tea in the meantime. Use code ZEN10 for a discount." }]);
+      setChatHistory([...newHistory, { role: 'model', text: "My wellness sensors are recalibrating — try our Organic Green Tea in the meantime. Use code SIP15 for 15% off." }]);
     } finally {
       setIsLoading(false);
     }
